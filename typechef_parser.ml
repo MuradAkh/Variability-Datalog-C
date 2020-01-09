@@ -1,7 +1,6 @@
 open Base 
 open Stdio
 
-
 let qLog transformer target = 
     transformer target 
         |> Sexp.to_string 
@@ -17,10 +16,13 @@ type nodeType =
     | Unparsed
  [@@deriving sexp]
 
-type orV = varE * varE  [@@deriving sexp]
-and andV = varE * varE  [@@deriving sexp]
-and notV = varE  [@@deriving sexp]
-and varE = CorV of string | AndV of andV | NotV of notV | OrV of orV  [@@deriving sexp]
+
+type varE = 
+    | AtomV of string 
+    | AndV of varE list
+    | NotV of varE
+    | OrV of varE list
+[@@deriving sexp]
             
 type edge = Edge of {edge_id: string; a: node; b: node; varEdge: varE;}  [@@deriving sexp]
 and node = Node of {nodeID: string; edges: edge list; varNode: varE; typeNode: nodeType; nodeValue: string}  [@@deriving sexp]
@@ -30,7 +32,7 @@ type cfg = (string, node, String.comparator_witness) Map.t *
 
 let readFile = In_channel.read_lines  
 
-let voidNode = Node {nodeID="0";  varNode= CorV(""); typeNode= Statement; nodeValue= ""; edges= [] }
+let voidNode = Node {nodeID="0";  varNode= AtomV(""); typeNode= Statement; nodeValue= ""; edges= [] }
 
 
 let parseNodeType = function
@@ -43,7 +45,7 @@ let parseNodeType = function
 
 let parseVariability (input : string) : varE = 
     qLog sexp_of_string input;
-    CorV(input)
+    AtomV(input)
 
 let parseNode tokens : node = 
     Node {
@@ -122,7 +124,7 @@ let buildCFG (input : string sexp_list)  =
     let initial_nodes = Map.empty (module String) in
     let initial_edges = Map.empty (module String) in
 
-    let n =  Node {nodeID="0"; edges= []; varNode= CorV(""); typeNode= Statement; nodeValue= List.hd_exn input } in
+    let n =  Node {nodeID="0"; edges= []; varNode= AtomV(""); typeNode= Statement; nodeValue= List.hd_exn input } in
     let updated = Map.add_exn initial_nodes ~key:"f" ~data:n in
     ignore updated;
 
