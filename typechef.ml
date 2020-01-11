@@ -39,10 +39,13 @@ let parseNodeType = function
     
 
 let parseVariability (input : string) : varE = 
+    qLog sexp_of_string input;
+    if (String.equal input "1") then NoVar(()) else
+
     let parse_with_error lexbuf =
         try Parser.prog Lexer.read lexbuf with
         | SyntaxError msg ->
-            eprintf  "syntax error: %s on string: %s \n" msg input;
+            eprintf  "syntax error: %s on string: %s\n" msg input;
             None
         | Parser.Error ->
             eprintf  "parser error\n";
@@ -140,11 +143,11 @@ let buildCFG (input : string sexp_list)  =
 
 
 let () = 
-    "./typechef_cfgs/d.cfg" 
+    "./typechef_cfgs/i2c.cfg" 
         |> readFile 
         |> buildCFG 
-        (* |> fun (a, _) -> Map.find_exn a "786466608" *)
-        (* |> qLog sexp_of_node  *)
+        |> fun (a, _) -> Map.find_exn a "245582109"
+        |> qLog sexp_of_node 
         |> ignore
     
 
