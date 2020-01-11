@@ -1,5 +1,7 @@
 open Base 
 open Stdio
+open VariabilityTypes
+open Lexer
 
 let qLog transformer target = 
     transformer target 
@@ -16,13 +18,6 @@ type nodeType =
     | Unparsed
  [@@deriving sexp]
 
-
-type varE = 
-    | AtomV of string 
-    | AndV of varE list
-    | NotV of varE
-    | OrV of varE list
-[@@deriving sexp]
             
 type edge = Edge of {edge_id: string; a: node; b: node; varEdge: varE;}  [@@deriving sexp]
 and node = Node of {nodeID: string; edges: edge list; varNode: varE; typeNode: nodeType; nodeValue: string}  [@@deriving sexp]
@@ -44,8 +39,20 @@ let parseNodeType = function
     
 
 let parseVariability (input : string) : varE = 
-    qLog sexp_of_string input;
-    AtomV(input)
+    let parse_with_error lexbuf =
+        try Parser.prog Lexer.read lexbuf with
+        | SyntaxError msg ->
+            eprintf  "syntax error: %s on string: %s \n" msg input;
+            None
+        | Parser.Error ->
+            eprintf  "parser error\n";
+            Caml.exit (-1)
+    in
+
+    Lexing.from_string input 
+        |> parse_with_error
+        |> function | Some (a) -> a
+                    | _ -> AtomV("Unparsed")
 
 let parseNode tokens : node = 
     Node {
@@ -133,7 +140,7 @@ let buildCFG (input : string sexp_list)  =
 
 
 let () = 
-    "./typechef_cfgs/i2c.cfg" 
+    "./typechef_cfgs/d.cfg" 
         |> readFile 
         |> buildCFG 
         (* |> fun (a, _) -> Map.find_exn a "786466608" *)
