@@ -1,0 +1,8 @@
+(executable
+ (name typechef)
+ (libraries base stdio)
+  (preprocess (pps ppx_sexp_conv ppx_jane))
+)
+
+(ocamllex lexer)
+(menhir (modules parser))

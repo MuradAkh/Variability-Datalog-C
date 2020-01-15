@@ -1,2 +1,5 @@
-_build/
-.merlin
+target
+*.log
+*.cfg
+*.dot
+project/target
