@@ -19,15 +19,17 @@ type nodeType =
  [@@deriving sexp]
 
             
+type expression = Expression of {value: string; container: string option} [@@deriving sexp]
+
 type edge = Edge of {edge_id: string; a: node; b: node; varEdge: varE;}  [@@deriving sexp]
-and node = Node of {nodeID: string; edges: edge list; varNode: varE; typeNode: nodeType; nodeValue: string}  [@@deriving sexp]
+and node = Node of {nodeID: string; edges: edge list; varNode: varE; typeNode: nodeType; nodeValue: expression}  [@@deriving sexp]
 
 type cfg = (string, node, String.comparator_witness) Map.t *
            (string, edge list, String.comparator_witness) Map.t
 
 let readFile = In_channel.read_lines  
 
-let voidNode = Node {nodeID="0";  varNode= AtomV(""); typeNode= Statement; nodeValue= ""; edges= [] }
+let voidNode = Node {nodeID="0";  varNode= AtomV(""); typeNode= Statement; nodeValue= Expression {value=""; container=Some("")}; edges= [] }
 
 
 let parseNodeType = function
@@ -57,13 +59,19 @@ let parseVariability (input : string) : varE =
         |> function | Some (a) -> a
                     | _ -> AtomV("Unparsed")
 
+let parseExpression (exp: string) : expression = exp
+    |> String.substr_replace_all ~pattern:"::" ~with_:"%" 
+    |> String.split ~on:'%'
+    |> fun a -> print_endline exp; Expression {value=List.hd_exn a; container=List.nth a 1}
+
+
 let parseNode tokens : node = 
     Node {
             nodeID = List.nth_exn tokens 1; 
             edges = [];
             varNode =  List.nth_exn tokens 5 |> parseVariability; 
             typeNode = List.nth_exn tokens 2 |> parseNodeType ; 
-            nodeValue = List.nth_exn tokens 4; 
+            nodeValue = List.nth_exn tokens 4 |> parseExpression; 
     }
 
 let parseEdge nodes (tokens : string sexp_list) : edge = 
@@ -112,41 +120,52 @@ let addEdge ((nodes, edges) : cfg) e : cfg=
 
     
 
-let parseLine 
-    ((nodes, edges) : cfg)
-    (line: string) : cfg = 
+let parseLine (nodes, edges, functions) (line: string) = 
 
     let tokens = String.split line ~on:';' in
     (* qLog (sexp_of_list sexp_of_string) tokens;
-    
-    tokens 
-        |> List.length 
-        |> (qLog sexp_of_int); *)
+       tokens 
+          |> List.length 
+          |> (qLog sexp_of_int); *)
 
+    let addFunction (n : node)  = 
+        let Node {typeNode = nodeType; nodeValue = nodeVal; _} = n in 
+        let Expression {value = expVal; _} = nodeVal in
+        match nodeType with 
+            | Function -> Map.set functions ~key:expVal ~data:n 
+            | _ -> functions;
+    in
+
+    
     match List.hd tokens with 
-        | Some "N" -> tokens |> parseNode |> addNode (nodes, edges)
-        | Some "E" -> tokens |> parseEdge nodes |> addEdge (nodes, edges) 
-        | _ -> (nodes, edges) 
+        | Some "E" -> tokens |> parseEdge nodes |> addEdge (nodes, edges) |> fun (n, e) -> (n, e, functions)
+        | Some "N" -> tokens |> parseNode 
+                             |> fun n -> (addNode (nodes, edges) n, addFunction n)
+                             |> fun ((n, e), f) -> (n, e, f)
+        | _ -> (nodes, edges, functions) 
 
    
 
 let buildCFG (input : string sexp_list)  = 
     let initial_nodes = Map.empty (module String) in
     let initial_edges = Map.empty (module String) in
-
+    let initial_functions = Map.empty (module String) in
+(* 
     let n =  Node {nodeID="0"; edges= []; varNode= AtomV(""); typeNode= Statement; nodeValue= List.hd_exn input } in
     let updated = Map.add_exn initial_nodes ~key:"f" ~data:n in
-    ignore updated;
+    ignore updated; *)
 
-    let parsed = List.fold input ~init:(initial_nodes, initial_edges) ~f:parseLine in 
+    let parsed = List.fold input ~init:(initial_nodes, initial_edges, initial_functions) ~f:parseLine in 
     parsed
+
+
 
 
 let () = 
     "./typechef_cfgs/i2c.cfg" 
         |> readFile 
         |> buildCFG 
-        |> fun (a, _) -> Map.find_exn a "706322686"
+        |> fun (a, _, _) -> Map.find_exn a "706322686"
         |> qLog sexp_of_node 
         |> ignore
     
