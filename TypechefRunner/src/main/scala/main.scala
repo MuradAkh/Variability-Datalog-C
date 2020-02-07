@@ -1,32 +1,3 @@
-// This is a modfied version taken from typechef/crewrite/dotgraph
-
-
-// TypeChef is a research project released as free software:
-// you can redistribute it and/or modify it under the terms
-// of the GNU Lesser General Public License as published by
-// the Free Software Foundation, version 3 of the License.
-
-// The Partial Preprocessor component of TypeChef builds on jcpp
-// developed by Ben Mankin and released under Apache License 2.0
-// see http://www.anarres.org/projects/jcpp/
-// We massively modified the original implementation.
-
-// The TypeChef project uses the SAT solver sat4j released
-// as LGPL (downloaded by sbt). see http://www.sat4j.org/
-
-// For convenience, we include *sbt* which is released under
-// BSD license. see http://code.google.com/p/simple-build-tool/
-
-// Experimentally the Xtc/SuperC parser is included as .jar
-// file, which is released mostly under GPLv2.
-
-// Possible contained case studies and examples are not
-// covered by this license.
-
-// TypeChef is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
 
 
 import java.io.{File, FileWriter}
