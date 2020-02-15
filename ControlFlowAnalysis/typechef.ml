@@ -1,7 +1,6 @@
 open Base 
 open Stdio
-open VariabilityTypes
-open Lexer
+open TypechefTypes
 
 let qLog transformer target = 
     transformer target 
@@ -10,26 +9,33 @@ let qLog transformer target =
 
 type world = string * string [@@deriving sexp]
 
-type nodeType = 
+(* type nodeType = 
     | Declaration
     | Statement
     | Function
     | FunctionInline
     | Unparsed
- [@@deriving sexp]
+ [@@deriving sexp] *)
 
             
-type expression = Expression of {value: string; container: string option} [@@deriving sexp]
+type expression = 
+                | Declaration of {value: c_ast; container: string option} 
+                | Statement of {value: c_ast; container: string option} 
+                | Function of {value: string; container: string option} 
+                | FunctionInline of {value: string; container: string option} 
+                | Unparsed of {value: string; container: string option} 
+
+                 [@@deriving sexp]
 
 type edge = Edge of {edge_id: string; a: node; b: node; varEdge: varE;}  [@@deriving sexp]
-and node = Node of {nodeID: string; edges: edge list; varNode: varE; typeNode: nodeType; nodeValue: expression}  [@@deriving sexp]
+and node = Node of {nodeID: string; edges: edge list; varNode: varE;  nodeValue: expression}  [@@deriving sexp]
 
 type cfg = (string, node, String.comparator_witness) Map.t *
            (string, edge list, String.comparator_witness) Map.t
 
 let readFile = In_channel.read_lines  
 
-let voidNode = Node {nodeID="0";  varNode= AtomV(""); typeNode= Statement; nodeValue= Expression {value=""; container=Some("")}; edges= [] }
+let voidNode = Node {nodeID="0";  varNode= AtomV(""); nodeValue= Statement {value=AtomicAst(""); container=Some("")}; edges= [] }
 
 type flowGraph = ControlFlowGraph of {
                                         nodes: (string, node, String.comparator_witness) Map.t;
@@ -39,13 +45,13 @@ type flowGraph = ControlFlowGraph of {
 
 let parseCfg (filepath : string) = 
 
-    let parseNodeType = function
+    (* let parseNodeType = function
         | "statement" -> Statement
         | "function" -> Function
         | "function-inline" -> FunctionInline
         | "declaration" -> Declaration
         | (_ : string) -> Unparsed
-    in
+    in *)
         
 
     let parseVariability (input : string) : varE = 
@@ -53,12 +59,12 @@ let parseCfg (filepath : string) =
         if (String.equal input "1") then NoVar(()) else
 
         let parse_with_error lexbuf =
-            try Parser.prog Lexer.read lexbuf with
-            | SyntaxError msg ->
+            try VarParser.prog VarLexer.read lexbuf with
+            | VarLexer.SyntaxError msg ->
                 eprintf  "syntax error: %s on string: %s\n" msg input;
                 None
-            | Parser.Error ->
-                eprintf  "parser error\n";
+            | VarParser.Error ->
+                eprintf  "parser error on\n";
                 Caml.exit (-1)
         in
 
@@ -68,10 +74,36 @@ let parseCfg (filepath : string) =
                         | _ -> AtomV("Unparsed")
     in
 
-    let parseExpression (exp: string) : expression = exp
+    let parseAst (exp: string) : c_ast =
+
+        let parse_with_error lexbuf =
+            try AstParser.prog AstLexer.read lexbuf with
+            | AstLexer.SyntaxError msg ->
+                eprintf  "syntax error: %s on string: %s\n" msg exp;
+                None
+            | AstParser.Error ->
+                eprintf  "parser error on %s \n" exp;
+                Caml.exit (-1)
+        in
+
+        Lexing.from_string exp 
+            |> parse_with_error
+            |> function | Some (a) -> a
+                        | _ -> AtomicAst("Unparsed")
+
+    
+    in
+
+    let parseExpression (expr_type: string) (exp: string) : expression = exp
         |> String.substr_replace_all ~pattern:"::" ~with_:"%" 
         |> String.split ~on:'%'
-        |> fun a -> print_endline exp; Expression {value=List.hd_exn a; container=List.nth a 1}
+        |> fun (a : string list) -> 
+            match expr_type with 
+            | "declaration" -> Declaration {value=List.hd_exn a |> parseAst; container=List.nth a 1}
+            | "statement" -> Statement {value=List.hd_exn a |> parseAst; container=List.nth a 1}
+            | "function" -> Function {value=List.hd_exn a; container=List.nth a 1}
+            | "function-inline" -> FunctionInline {value=List.hd_exn a; container=List.nth a 1}
+            | _ -> Unparsed {value=List.hd_exn a; container=List.nth a 1}
     in
 
     let parseNode tokens : node = 
@@ -79,8 +111,7 @@ let parseCfg (filepath : string) =
                 nodeID = List.nth_exn tokens 1; 
                 edges = [];
                 varNode =  List.nth_exn tokens 5 |> parseVariability; 
-                typeNode = List.nth_exn tokens 2 |> parseNodeType ; 
-                nodeValue = List.nth_exn tokens 4 |> parseExpression; 
+                nodeValue = List.nth_exn tokens 4 |> parseExpression (List.nth_exn tokens 2); 
         }
     in
 
@@ -99,12 +130,11 @@ let parseCfg (filepath : string) =
     in
 
     let addEdgeToNode (e : edge) = function
-        | Node {nodeID=id; edges=es; varNode = vn ; typeNode = tn; nodeValue= nv} -> 
+        | Node {nodeID=id; edges=es; varNode = vn ; nodeValue= nv} -> 
             Node {      
                 nodeID=id;
                 edges= e :: es;
                 varNode = vn;
-                typeNode = tn;
                 nodeValue = nv;
             }
     in
@@ -140,19 +170,22 @@ let parseCfg (filepath : string) =
             |> (qLog sexp_of_int); *)
 
         let addFunction (n : node)  = 
-            let Node {typeNode = nodeType; nodeValue = nodeVal; _} = n in 
-            let Expression {value = expVal; _} = nodeVal in
-            match nodeType with 
-                | Function -> Map.set functions ~key:expVal ~data:n 
+            let Node {nodeValue = nodeVal; _} = n in 
+            match nodeVal with 
+                | Function {value = expVal; _} -> Map.set functions ~key:expVal ~data:n 
                 | _ -> functions;
         in
 
         
         match List.hd tokens with 
-            | Some "E" -> tokens |> parseEdge nodes |> addEdge (nodes, edges) |> fun (n, e) -> (n, e, functions)
+            | Some "E" -> tokens |> parseEdge nodes 
+                                 |> addEdge (nodes, edges) 
+                                 |> fun (n, e) -> (n, e, functions)
+
             | Some "N" -> tokens |> parseNode 
-                                |> fun n -> (addNode (nodes, edges) n, addFunction n)
-                                |> fun ((n, e), f) -> (n, e, f)
+                                 |> fun n -> (addNode (nodes, edges) n, addFunction n)
+                                 |> fun ((n, e), f) -> (n, e, f)
+
             | _ -> (nodes, edges, functions) 
     in
     
@@ -170,14 +203,17 @@ let parseCfg (filepath : string) =
         parsed
     in
 
-    filepath |> readFile |> buildCFG |> fun (n, e, f) -> ControlFlowGraph {nodes = n; edges= e; functions= f}
+    filepath 
+        |> readFile 
+        |> buildCFG 
+        |> fun (n, e, f) -> ControlFlowGraph {nodes = n; edges= e; functions= f}
  
-let () = 
+(* let () = 
     "./typechef_cfgs/i2c.cfg" 
         |> parseCfg 
         |> function ControlFlowGraph {nodes = n; edges= e; functions= f} -> (n, e, f)
         |> fun (a, _, _) -> Map.find_exn a "706322686"
         |> qLog sexp_of_node 
-        |> ignore
+        |> ignore *)
 
 

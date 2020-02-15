@@ -1,5 +1,5 @@
 {
-  open Parser
+  open VarParser
   exception SyntaxError of string
 }
 

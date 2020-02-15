@@ -1,10 +1,20 @@
 open Typechef
 open Base
+open Datalog
 
 let () = 
-    "./typechef_cfgs/i2c.cfg" 
+        let fact = DatalogFact {clause=""; variability= AtomV("")} in
+        (soufleString fact) |> ignore;
+
+        "./typechef_cfgs/blink1.cfg" 
         |> parseCfg 
         |> function ControlFlowGraph {nodes = n; edges= e; functions= f} -> (n, e, f)
-        |> fun (a, _, _) -> Map.find_exn a "706322686"
+        |> fun (_, _, f) -> Map.find_exn f "main"
         |> qLog sexp_of_node 
         |> ignore
+        
+        
+
+    
+
+
