@@ -28,14 +28,14 @@ type expression =
                  [@@deriving sexp]
 
 type edge = Edge of {edge_id: string; a: node; b: node; varEdge: varE;}  [@@deriving sexp]
-and node = Node of {nodeID: string; edges: edge list; varNode: varE;  nodeValue: expression}  [@@deriving sexp]
+and node = Node of {nodeID: string; succs: edge list; preds: edge list; varNode: varE;  nodeValue: expression}  [@@deriving sexp]
 
 type cfg = (string, node, String.comparator_witness) Map.t *
            (string, edge list, String.comparator_witness) Map.t
 
 let readFile = In_channel.read_lines  
 
-let voidNode = Node {nodeID="0";  varNode= AtomV(""); nodeValue= Statement {value=AtomicAst(""); container=Some("")}; edges= [] }
+let voidNode = Node {nodeID="0";  varNode= AtomV(""); nodeValue= Statement {value=AtomicAst(""); container=Some("")}; succs= []; preds =[] }
 
 type flowGraph = ControlFlowGraph of {
                                         nodes: (string, node, String.comparator_witness) Map.t;
@@ -109,7 +109,8 @@ let parseCfg (filepath : string) =
     let parseNode tokens : node = 
         Node {
                 nodeID = List.nth_exn tokens 1; 
-                edges = [];
+                succs = [];
+                preds = [];
                 varNode =  List.nth_exn tokens 5 |> parseVariability; 
                 nodeValue = List.nth_exn tokens 4 |> parseExpression (List.nth_exn tokens 2); 
         }
@@ -129,11 +130,23 @@ let parseCfg (filepath : string) =
         (Map.add_exn (nodes) ~key:id ~data:n , edges)
     in
 
-    let addEdgeToNode (e : edge) = function
-        | Node {nodeID=id; edges=es; varNode = vn ; nodeValue= nv} -> 
+    let addPredToNode (e : edge) = function
+        | Node {nodeID=id; succs=ss; preds=ps; varNode = vn ; nodeValue= nv} -> 
             Node {      
                 nodeID=id;
-                edges= e :: es;
+                succs= ss;
+                preds= e :: ps;
+                varNode = vn;
+                nodeValue = nv;
+            }
+    in
+
+    let addSuccToNode (e : edge) = function
+        | Node {nodeID=id; succs=ss; preds=ps; varNode = vn ; nodeValue= nv} -> 
+            Node {      
+                nodeID=id;
+                succs= e :: ss;
+                preds= ps;
                 varNode = vn;
                 nodeValue = nv;
             }
@@ -146,9 +159,9 @@ let parseCfg (filepath : string) =
 
         let new_nodes = 
             nodes 
-                |> fun m -> addEdgeToNode e a 
+                |> fun m -> addPredToNode e b
                     |> fun d -> Map.set m ~key:(match a with Node {nodeID = id; _} -> id) ~data:d
-                |> fun m -> addEdgeToNode e b 
+                |> fun m -> addSuccToNode e a
                     |> fun d -> Map.set m ~key:(match b with Node {nodeID = id; _} -> id) ~data:d
         in
 
@@ -157,7 +170,12 @@ let parseCfg (filepath : string) =
             | _ -> [e];
         in
 
-        (new_nodes , Map.update (edges) id ~f:updateEdge)
+        let Node {nodeValue = nodeVal; _} = a in 
+        match nodeVal with
+            | Function(_) -> (nodes, edges) 
+            | _ ->  (new_nodes , Map.update (edges) id ~f:updateEdge)
+
+
     in
         
 
