@@ -1,7 +1,7 @@
 open Base
 open TypechefTypes
 
-type datalog_fact = DatalogFact of {clause: string; variability : varE} [@@deriving sexp]
+type datalog_fact = DatalogFact of {variability : varE option; name: string; variables: string list} [@@deriving sexp]
 
 
 

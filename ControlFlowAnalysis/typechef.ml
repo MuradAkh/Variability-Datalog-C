@@ -19,10 +19,10 @@ type world = string * string [@@deriving sexp]
 
             
 type expression = 
-                | Declaration of {value: c_ast; container: string option} 
-                | Statement of {value: c_ast; container: string option} 
-                | Function of {value: string; container: string option} 
-                | FunctionInline of {value: string; container: string option} 
+                | Declaration of {value: c_ast; container: string} 
+                | Statement of {value: c_ast; container: string} 
+                | Function of {value: string} 
+                | FunctionInline of {value: string} 
                 | Unparsed of {value: string; container: string option} 
 
                  [@@deriving sexp]
@@ -35,7 +35,7 @@ type cfg = (string, node, String.comparator_witness) Map.t *
 
 let readFile = In_channel.read_lines  
 
-let voidNode = Node {nodeID="0";  varNode= AtomV(""); nodeValue= Statement {value=AtomicAst(""); container=Some("")}; succs= []; preds =[] }
+let voidNode = Node {nodeID="0";  varNode= AtomV(""); nodeValue= Unparsed {value=""; container= None}; succs= []; preds =[] }
 
 type flowGraph = ControlFlowGraph of {
                                         nodes: (string, node, String.comparator_witness) Map.t;
@@ -99,10 +99,10 @@ let parseCfg (filepath : string) =
         |> String.split ~on:'%'
         |> fun (a : string list) -> 
             match expr_type with 
-            | "declaration" -> Declaration {value=List.hd_exn a |> parseAst; container=List.nth a 1}
-            | "statement" -> Statement {value=List.hd_exn a |> parseAst; container=List.nth a 1}
-            | "function" -> Function {value=List.hd_exn a; container=List.nth a 1}
-            | "function-inline" -> FunctionInline {value=List.hd_exn a; container=List.nth a 1}
+            | "declaration" -> Declaration {value=List.hd_exn a |> parseAst; container=List.nth_exn a 1}
+            | "statement" -> Statement {value=List.hd_exn a |> parseAst; container=List.nth_exn a 1}
+            | "function" -> Function {value=List.hd_exn a}
+            | "function-inline" -> FunctionInline {value=List.hd_exn a}
             | _ -> Unparsed {value=List.hd_exn a; container=List.nth a 1}
     in
 

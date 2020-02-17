@@ -1,9 +1,10 @@
 open Typechef
 open Base
 open Datalog
+(* open CfgAnalysis *)
 
 let () = 
-        let fact = DatalogFact {clause=""; variability= AtomV("")} in
+        let fact = DatalogFact {name=""; variables= [""];  variability= Some(AtomV(""))} in
         (soufleString fact) |> ignore;
 
         "./typechef_cfgs/blink1.cfg" 
