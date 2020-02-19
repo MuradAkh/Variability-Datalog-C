@@ -1,6 +1,6 @@
 (executable
  (name intabs)
- (libraries base stdio)
+ (libraries base stdio ocamlgraph)
   (preprocess (pps ppx_sexp_conv ppx_jane))
 )
 
