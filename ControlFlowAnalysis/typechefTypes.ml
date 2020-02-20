@@ -6,9 +6,9 @@ type varE =
     | NotV of varE
     | OrV of varE list
     | NoVar of unit
-[@@deriving sexp]
+[@@deriving sexp, compare]
 
-type c_ast_id = IdAst of string [@@deriving sexp]
+type c_ast_id = IdAst of string [@@deriving sexp, compare]
 
 
 type c_ast = 
@@ -16,5 +16,5 @@ type c_ast =
     | OtherAst of c_ast list 
     | AtomicAst of string
     | LoadAst of c_ast_id
-    [@@deriving sexp]
+    [@@deriving sexp, compare]
 

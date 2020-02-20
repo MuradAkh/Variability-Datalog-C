@@ -1,7 +1,10 @@
 open Base
 open TypechefTypes
 
-type datalog_fact = DatalogFact of {variability : varE option; name: string; variables: string list} [@@deriving sexp]
+type datalog_fact = 
+    | Dominator of {variability : varE option; doms: string; domed: string}
+    | PostDominator of {variability : varE option; doms: string; domed: string}
+    [@@deriving sexp]
 
 
 

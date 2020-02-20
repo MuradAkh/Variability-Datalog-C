@@ -25,10 +25,12 @@ type expression =
                 | FunctionInline of {value: string} 
                 | Unparsed of {value: string; container: string option} 
 
-                 [@@deriving sexp]
+                 [@@deriving sexp, compare]
 
-type edge = Edge of {edge_id: string; a: node; b: node; varEdge: varE;}  [@@deriving sexp]
-and node = Node of {nodeID: string; succs: edge list; preds: edge list; varNode: varE;  nodeValue: expression}  [@@deriving sexp]
+type edge = Edge of {edge_id: string; a: node; b: node; varEdge: varE;}  [@@deriving sexp, compare]
+and node = Node of {nodeID: string; succs: edge list; preds: edge list; varNode: varE;  nodeValue: expression}  [@@deriving sexp, compare]
+
+let id_of_node = function | Node{nodeID = id; _} -> id
 
 type cfg = (string, node, String.comparator_witness) Map.t *
            (string, edge list, String.comparator_witness) Map.t
@@ -55,7 +57,6 @@ let parseCfg (filepath : string) =
         
 
     let parseVariability (input : string) : varE = 
-        qLog sexp_of_string input;
         if (String.equal input "1") then NoVar(()) else
 
         let parse_with_error lexbuf =
@@ -160,9 +161,9 @@ let parseCfg (filepath : string) =
         let new_nodes = 
             nodes 
                 |> fun m -> addPredToNode e b
-                    |> fun d -> Map.set m ~key:(match a with Node {nodeID = id; _} -> id) ~data:d
-                |> fun m -> addSuccToNode e a
                     |> fun d -> Map.set m ~key:(match b with Node {nodeID = id; _} -> id) ~data:d
+                |> fun m -> addSuccToNode e a
+                    |> fun d -> Map.set m ~key:(match a with Node {nodeID = id; _} -> id) ~data:d
         in
 
         let updateEdge = function
@@ -170,7 +171,7 @@ let parseCfg (filepath : string) =
             | _ -> [e];
         in
 
-        let Node {nodeValue = nodeVal; _} = a in 
+        let Node {nodeValue = nodeVal; _} = b in 
         match nodeVal with
             | Function(_) -> (nodes, edges) 
             | _ ->  (new_nodes , Map.update (edges) id ~f:updateEdge)
@@ -193,7 +194,6 @@ let parseCfg (filepath : string) =
                 | Function {value = expVal; _} -> Map.set functions ~key:expVal ~data:n 
                 | _ -> functions;
         in
-
         
         match List.hd tokens with 
             | Some "E" -> tokens |> parseEdge nodes 
@@ -216,6 +216,7 @@ let parseCfg (filepath : string) =
         let n =  Node {nodeID="0"; edges= []; varNode= AtomV(""); typeNode= Statement; nodeValue= List.hd_exn input } in
         let updated = Map.add_exn initial_nodes ~key:"f" ~data:n in
         ignore updated; *)
+
 
         let parsed = List.fold input ~init:(initial_nodes, initial_edges, initial_functions) ~f:parseLine in 
         parsed
