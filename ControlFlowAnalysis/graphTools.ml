@@ -7,7 +7,7 @@ open TypechefTypes
 (* representation of a node -- must be hashable *)
 module GNode = struct
    type t = node
-   let compare = Pervasives.compare
+   let compare a b = String.compare (id_of_node a) (id_of_node b)
    let hash = Hashtbl.hash
    let equal = (==)
 end
@@ -15,7 +15,7 @@ end
 (* representation of an edge -- must be comparable *)
 module GEdge = struct
    type t = string
-   let compare = Pervasives.compare
+   let compare = String.compare
    let equal = (=)
    let default = ""
 end
@@ -63,7 +63,7 @@ let make_graph (nodes: node list) : G.t =
    (* List.map (function | Node {nodeID = id; _} -> id) *)
    nodes
       |> List.fold_left (fun acc curr -> G.add_vertex acc curr) initial
-      |> fun g -> List.fold_left (fun acc (a, b) -> print_endline @@ string_of_int @@ G.nb_edges acc; G.add_edge acc a b) g edges 
+      |> fun g -> List.fold_left (fun acc (a, b) -> G.add_edge acc a b) g edges 
 
 
 let plot (graph : G.t) = 
@@ -88,12 +88,12 @@ let dominaors (graph : G.t)
       let create : ?size:int -> unit -> t = fun ?size:int () -> empty
    end) in
 
-
    let domg = Dom.compute_all graph start in   
-   
+      print_endline "hello";
+
    let check_dom acc curr = 
       domg.dominators curr 
-         |> fun a -> print_int @@ List.length a ; List.map (fun v -> (v, curr)) a
+         |> fun a -> List.map (fun v -> (v, curr)) a
          |> List.append acc 
    in
    

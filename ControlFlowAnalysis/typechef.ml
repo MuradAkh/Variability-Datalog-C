@@ -42,7 +42,7 @@ let voidNode = Node {nodeID="0";  varNode= AtomV(""); nodeValue= Unparsed {value
 type flowGraph = ControlFlowGraph of {
                                         nodes: (string, node, String.comparator_witness) Map.t;
                                         edges: (string, edge list, String.comparator_witness) Map.t;
-                                        functions: (string, node, String.comparator_witness) Map.t;
+                                        functions: (string, string, String.comparator_witness) Map.t;
                                      }
 
 let parseCfg (filepath : string) = 
@@ -191,7 +191,7 @@ let parseCfg (filepath : string) =
         let addFunction (n : node)  = 
             let Node {nodeValue = nodeVal; _} = n in 
             match nodeVal with 
-                | Function {value = expVal; _} -> Map.set functions ~key:expVal ~data:n 
+                | Function {value = expVal; _} -> Map.set functions ~key:expVal ~data:(id_of_node n) 
                 | _ -> functions;
         in
         

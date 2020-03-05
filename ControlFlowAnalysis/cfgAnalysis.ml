@@ -4,6 +4,27 @@ open Datalog
 open Base
 open GraphTools
 
+module MNode = struct
+    module T = 
+       struct  
+          type t = node [@@deriving sexp_of]  
+          let compare a b = String.compare (id_of_node a) (id_of_node b)
+       end
+    include T
+    include Base.Comparable.Make(T)
+end
+
+
+
+let reachable (nexts: node -> node list) (source : node) : node list  = 
+   let visited = Set.empty (module MNode) in
+
+   let rec dfs set n = 
+      (* if Base.Set.mem set n then set else *)
+      let updated = Set.add set n in
+      List.fold ~f:dfs ~init:updated @@ nexts n
+   in
+   dfs visited source |> Set.to_list
 
 let rec ast_stores = function 
   | AtomicAst(_) -> []
@@ -56,30 +77,63 @@ let preds_node (n : node) =
   let Node {preds = edges; _} = n in
   List.map ~f:(function | Edge {a = p; _} -> p ) edges 
 
-let store_load_facts (func : node): datalog_fact list =
-  ignore func;
-  []
+let store_loads_of_node (target : node): datalog_fact list =
+  let id = id_of_node target in
+  let Node {varNode = varb; _} = target in
+  let loads = node_loads target in 
+  let stores = node_stores target in 
+
+  let make_store (fact : string) (id2: int) = 
+    Store {variable = fact; variability = Some(varb); node= id ^ ":" ^ (Int.to_string id2)} 
+  in
+  
+  let make_load (fact : string) (id2: int) = 
+    Load {variable = fact; variability = Some(varb); node= id ^ ":" ^ (Int.to_string id2)}
+  in
+
+  
+  let (load_facts, rem) = 
+    List.fold_left 
+      ~f:(fun (l, n) curr -> ((make_load curr n) :: l, n - 1)) 
+      ~init:([], node_subnodes_count target) 
+      loads 
+  in
+
+  let (sl_facts, _) = 
+    List.fold_left 
+      ~f:(fun (l, n) curr -> ((make_store curr n) :: l, n - 1)) 
+      ~init:(load_facts, rem) 
+      stores 
+  in
+
+ 
+  (* Generate Dominator relations for subnodes *)
+  let rec make_doms = function 
+    | 0 -> sl_facts
+    | n -> 
+
+    let rec make_dom = function 
+      | 0 ->  make_doms @@ n -1
+      | m -> 
+        Dominator {variability=Some(varb); doms= id ^ ":" ^ Int.to_string n; domed=id ^ ":" ^ Int.to_string n} 
+          ::
+        (make_dom @@ m - 1)
+    in
+
+    make_dom @@ n - 1
+  in
 
 
-module MNode = struct
-    module T = 
-       struct  
-          type t = node [@@deriving sexp_of, compare]  
-       end
-    include T
-    include Base.Comparable.Make(T)
-end
+  make_doms @@ node_subnodes_count target
 
-let reachable (nexts: node -> node list) (source : node) : node list  = 
-   let visited = Base.Set.empty (module MNode) in
 
-   let rec dfs set n = 
-      if Base.Set.mem set n then set else
-      let updated = Set.add visited n in
-      List.fold ~f:dfs ~init:updated @@ nexts n
-   in
+let store_loads_of_func (func: node) : datalog_fact list = 
+  reachable succs_node func 
+  |> List.map ~f:store_loads_of_node
+  |> List.concat
 
-   dfs visited source |> Set.to_list
+let node_cross ((a, b) : node * node) = ()
+
 
 let generic_dom ?g_pred ?g_succ (goal: node) (nexts : node -> node list) : datalog_fact list = 
   let nodes = reachable nexts goal in
