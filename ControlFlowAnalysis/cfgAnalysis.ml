@@ -4,6 +4,14 @@ open Datalog
 open Base
 open GraphTools
 
+(* DANGER ZONE - MUTABLE VARIABLE *)
+let _ID_MALLOC : int ref = ref 0
+let next_id_mutable : int = 
+  _ID_MALLOC := !_ID_MALLOC + 1;
+  !_ID_MALLOC
+(* END DANGER ZONE *)
+
+
 module MNode = struct
     module T = 
        struct  
@@ -29,19 +37,44 @@ let reachable (nexts: node -> node list) (source : node) : node list  =
 let rec ast_stores = function 
   | AtomicAst(_) -> []
   | OtherAst(asts) -> List.map ~f:ast_stores asts |> List.concat
+  | MallocAst(ast) -> ast_stores ast
   | LoadAst(_) -> []
   | AssignAst(store, rest) -> store :: ast_stores rest
+
+let rec ast_assigns = function 
+  | AtomicAst(_) -> []
+  | OtherAst(asts) -> List.map ~f:ast_assigns asts |> List.concat
+  | LoadAst(_) -> []
+  | MallocAst(ast) -> ast_assigns ast
+  | AssignAst(store, rest) -> 
+      match rest with 
+        | LoadAst(r) -> [(store, r)]
+        | _ -> []
+
+let rec ast_mallocs = function 
+  | AtomicAst(_) -> []
+  | OtherAst(asts) -> List.map ~f:ast_mallocs asts |> List.concat
+  | LoadAst(_) -> []
+  | MallocAst(ast) -> ast_mallocs ast
+  | AssignAst(store, rest) -> 
+      match rest with 
+      (* DANGER ZONE - MUTABLE VARIABLE *)
+        | MallocAst(_) -> [(store, next_id_mutable)]
+        | _ -> []
+      (* END DANGER ZONE *)
 
 let rec ast_loads = function 
   | AtomicAst(_) -> []
   | OtherAst(asts) -> List.map ~f:ast_loads asts |> List.concat
   | LoadAst(id) -> [id]
+  | MallocAst(ast) -> ast_loads ast
   | AssignAst(_, rest) -> ast_loads rest
   
 let rec ast_loads_stores = function 
   | AtomicAst(_) -> []
   | OtherAst(asts) -> List.map ~f:ast_loads_stores asts |> List.concat
   | LoadAst(id) -> [id]
+  | MallocAst(ast) -> ast_loads_stores ast
   | AssignAst(store, rest) -> store :: ast_loads_stores rest
 
 

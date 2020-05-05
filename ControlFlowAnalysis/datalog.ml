@@ -6,6 +6,8 @@ type datalog_fact =
     | PostDominator of {variability : varE option; doms: string; domed: string}
     | Store of {variability : varE option; variable: string; node : string}
     | Load of {variability : varE option; variable: string; node : string}
+    | PointsTo of {variability : varE option; variable: string; heap : string}
+    | Assign of {variability : varE option; tovar: string; fromvar : string}
     [@@deriving sexp]
 
 

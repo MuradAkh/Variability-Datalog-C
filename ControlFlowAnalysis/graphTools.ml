@@ -1,5 +1,4 @@
 open Typechef
-open TypechefTypes
 
 (* Thank you lambdapower @ Stackoverflow !! *)
 (* https://stackoverflow.com/questions/8999557/how-to-visualize-draw-automata-in-ocaml/9011334#9011334 *)
@@ -84,8 +83,8 @@ let dominaors (graph : G.t)
       let iter_vertex = G.iter_vertex
       let iter_succ = G.iter_succ
       let nb_vertex = G.nb_vertex
-      let add_edge g a b = ()
-      let create : ?size:int -> unit -> t = fun ?size:int () -> empty
+      let add_edge _ _ _ = ()
+      let create : ?size:_ -> unit -> t = fun ?size:_ () -> empty
    end) in
 
    let domg = Dom.compute_all graph start in   

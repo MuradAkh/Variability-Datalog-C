@@ -16,5 +16,6 @@ type c_ast =
     | OtherAst of c_ast list 
     | AtomicAst of string
     | LoadAst of c_ast_id
+    | MallocAst of c_ast
     [@@deriving sexp, compare]
 

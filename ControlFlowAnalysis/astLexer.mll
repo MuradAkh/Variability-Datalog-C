@@ -6,6 +6,7 @@
 let comma = ","
 let equals = "="
 let assign_paren = "AssignExpr("
+let malloc_parent = "malloc("
 let id_paren = "Id("
 let other_paren =  ['a'-'z' 'A'-'Z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_']* "("
 let white = [' ' '\t']+
