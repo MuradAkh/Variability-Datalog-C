@@ -78,7 +78,7 @@ let rec ast_loads_stores = function
   | AssignAst(store, rest) -> store :: ast_loads_stores rest
 
 
-let ast_finder (n : node) f = 
+let ast_finder (n : node) f t= 
   let Node{nodeValue = valn; _} = n in 
   let ids, container = match valn with 
     | Statement {value = ast; container = c} -> f ast, c
@@ -86,19 +86,33 @@ let ast_finder (n : node) f =
     | _ -> [], ""
   in
   
-  List.map ~f:(function | IdAst(id) -> id ^ "$$$$" ^ container) ids 
+  List.map ~f:(t container) ids 
+
+
+(*AST to daltalog fact tuples*)
+let unary_transformer container = function | IdAst(id) -> id ^ "$$$$" ^ container
+
+let binary_transformer container = function | (IdAst(id), IdAst(id2)) -> (id ^ "$$$$" ^ container, id2 ^ "$$$$" ^ container)
+
+let malloc_transformer container = function | (IdAst(id), i) -> (id ^ "$$$$" ^ container, Int.to_string i ^ "$$$$" ^ container)
 
 let node_stores (n : node) : string list = 
-  ast_finder n ast_stores
+  ast_finder n ast_stores unary_transformer
 
 let node_loads_stores (n : node) : string list = 
-  ast_finder n ast_loads_stores
+  ast_finder n ast_loads_stores unary_transformer
 
 let node_subnodes_count (n: node) : int = 
   node_loads_stores n |> List.length
 
 let node_loads (n : node) : string list = 
-  ast_finder n ast_loads
+  ast_finder n ast_loads unary_transformer
+
+let node_assigns (n : node) : (string * string) list = 
+  ast_finder n ast_assigns binary_transformer
+
+let node_mallocs (n : node) : (string * string) list = 
+  ast_finder n ast_mallocs malloc_transformer
 
 
 let succs_node (n : node) = 
@@ -109,6 +123,28 @@ let succs_node (n : node) =
 let preds_node (n : node) = 
   let Node {preds = edges; _} = n in
   List.map ~f:(function | Edge {a = p; _} -> p ) edges 
+
+
+let assigns_of_node (target : node): datalog_fact list =
+  let Node {varNode = varb; _} = target in
+  let assigns = node_assigns target in 
+
+  let make_assign (tovar, fromvar) = 
+    Assign {tovar = tovar; variability = Some(varb); fromvar=fromvar} 
+  in
+  
+  List.map ~f:make_assign assigns
+
+let mallocs_of_node (target : node): datalog_fact list =
+  let Node {varNode = varb; _} = target in
+  let mallocs = node_mallocs target in 
+
+  let make_malloc (var, heapid) = 
+    PointsTo {variable = var; variability = Some(varb); heap=heapid} 
+  in
+  
+  List.map ~f:make_malloc mallocs
+
 
 let store_loads_of_node (target : node): datalog_fact list =
   let id = id_of_node target in
@@ -165,7 +201,10 @@ let store_loads_of_func (func: node) : datalog_fact list =
   |> List.map ~f:store_loads_of_node
   |> List.concat
 
-let node_cross ((a, b) : node * node) = ()
+let node_cross ((a, b) : node * node) = 
+  ignore a;
+  ignore b;
+  ()
 
 
 let generic_dom ?g_pred ?g_succ (goal: node) (nexts : node -> node list) : datalog_fact list = 
