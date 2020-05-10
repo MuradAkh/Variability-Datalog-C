@@ -90,11 +90,14 @@ let ast_finder (n : node) f t=
 
 
 (*AST to daltalog fact tuples*)
-let unary_transformer container = function | IdAst(id) -> id ^ "$$$$" ^ container
+let unary_transformer container = function 
+| IdAst(id) -> id ^ "$$$$" ^ container
 
-let binary_transformer container = function | (IdAst(id), IdAst(id2)) -> (id ^ "$$$$" ^ container, id2 ^ "$$$$" ^ container)
+let binary_transformer container = function 
+| (IdAst(id), IdAst(id2)) -> (id ^ "$$$$" ^ container, id2 ^ "$$$$" ^ container)
 
-let malloc_transformer container = function | (IdAst(id), i) -> (id ^ "$$$$" ^ container, Int.to_string i ^ "$$$$" ^ container)
+let malloc_transformer container = function 
+| (IdAst(id), i) -> (id ^ "$$$$" ^ container, Int.to_string i ^ "$$$$" ^ container)
 
 let node_stores (n : node) : string list = 
   ast_finder n ast_stores unary_transformer
@@ -199,6 +202,11 @@ let store_loads_of_node (target : node): datalog_fact list =
 let store_loads_of_func (func: node) : datalog_fact list = 
   reachable succs_node func 
   |> List.map ~f:store_loads_of_node
+  |> List.concat
+
+let pointer_analysis_of_func (func: node) : datalog_fact list = 
+  reachable succs_node func
+  |> fun a -> List.map ~f:mallocs_of_node a @ List.map ~f:assigns_of_node a
   |> List.concat
 
 let node_cross ((a, b) : node * node) = 
