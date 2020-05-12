@@ -10,7 +10,7 @@ let malloc_parent = "malloc("
 let id_paren = "Id("
 let other_paren =  ['a'-'z' 'A'-'Z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_']* "("
 let white = [' ' '\t']+
-let atomic = ['0'-'9' 'a'-'z' 'A'-'Z' '_' '+' '<' '>'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*
+let atomic = ['0'-'9' 'a'-'z' 'A'-'Z' '_' '+' '<' '>' '"'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '"']*
 
 rule read = 
   parse 

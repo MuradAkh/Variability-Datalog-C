@@ -27,10 +27,16 @@ let typed_to_generic = function
   | Assign {variability=var; tovar=p1; fromvar=p2} -> 
       GFact {name= "Assign"; variability=var; parametrs=[p1;p2]}
 
+let brackets_surround target = "(" ^ target ^ ")"
+
 let rec variabilityPrinter = function
   | AtomV(s) -> s
-  | AndV(s) -> List.map ~f:variabilityPrinter s|> String.concat ~sep:"/\\"
-  | OrV(s) -> List.map ~f:variabilityPrinter s|> String.concat ~sep:"\\/"
+  | AndV(s) -> List.map ~f:variabilityPrinter s
+    |> String.concat ~sep:"/\\" 
+    |> brackets_surround
+  | OrV(s) -> List.map ~f:variabilityPrinter s
+    |> String.concat ~sep:"\\/"
+    |> brackets_surround
   | NotV(s) -> "!" ^ variabilityPrinter s
   | NoVar()-> ""
 
@@ -41,13 +47,11 @@ let variabilityPrinterOption = function
 let coreFactPrinter (name: string) (params: string list) : string = 
   name ^ 
   "(" ^ 
-  (
-    String.concat ~sep:"," params
-  ) ^ 
+  (String.concat ~sep:"," params) ^ 
   ")."
   
 
 let factPrinter = function 
-  GFact {variability=var; parametrs=_; name=n} -> 
-    coreFactPrinter n ["a";"b"] ^ " @ " ^ variabilityPrinterOption var
+  GFact {variability=var; parametrs=p; name=n} -> 
+    coreFactPrinter n p ^ " @ " ^ variabilityPrinterOption var
   

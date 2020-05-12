@@ -51,16 +51,16 @@ let rec ast_assigns = function
         | LoadAst(r) -> [(store, r)]
         | _ -> []
 
-let rec ast_mallocs = function 
+let rec ast_mallocs = function
   | AtomicAst(_) -> []
   | OtherAst(asts) -> List.map ~f:ast_mallocs asts |> List.concat
-  | LoadAst(_) -> []
+  | LoadAst(_) ->  []
   | MallocAst(ast) -> ast_mallocs ast
   | AssignAst(store, rest) -> 
       match rest with 
       (* DANGER ZONE - MUTABLE VARIABLE *)
         | MallocAst(_) -> [(store, next_id_mutable)]
-        | _ -> []
+        | _ -> ast_mallocs rest
       (* END DANGER ZONE *)
 
 let rec ast_loads = function 
@@ -69,6 +69,7 @@ let rec ast_loads = function
   | LoadAst(id) -> [id]
   | MallocAst(ast) -> ast_loads ast
   | AssignAst(_, rest) -> ast_loads rest
+
   
 let rec ast_loads_stores = function 
   | AtomicAst(_) -> []
@@ -97,7 +98,7 @@ let binary_transformer container = function
 | (IdAst(id), IdAst(id2)) -> (id ^ "$$$$" ^ container, id2 ^ "$$$$" ^ container)
 
 let malloc_transformer container = function 
-| (IdAst(id), i) -> (id ^ "$$$$" ^ container, Int.to_string i ^ "$$$$" ^ container)
+| (IdAst(id), i) -> (id ^ "$$$$" ^ container, Int.to_string i)
 
 let node_stores (n : node) : string list = 
   ast_finder n ast_stores unary_transformer
@@ -141,7 +142,6 @@ let assigns_of_node (target : node): datalog_fact list =
 let mallocs_of_node (target : node): datalog_fact list =
   let Node {varNode = varb; _} = target in
   let mallocs = node_mallocs target in 
-
   let make_malloc (var, heapid) = 
     PointsTo {variable = var; variability = Some(varb); heap=heapid} 
   in

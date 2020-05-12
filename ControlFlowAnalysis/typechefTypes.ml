@@ -10,6 +10,8 @@ type varE =
 
 type c_ast_id = IdAst of string [@@deriving sexp, compare]
 
+let string_of_ast_id = function | IdAst(s) -> s
+
 
 type c_ast = 
     | AssignAst of c_ast_id * c_ast

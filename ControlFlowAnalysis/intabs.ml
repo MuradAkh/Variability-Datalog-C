@@ -8,7 +8,7 @@ open CfgAnalysis
 let () = 
      
 
-        "./typechef_cfgs/blink1.cfg" 
+        "./typechef_cfgs/malloc.cfg" 
         |> parseCfg 
         |> function ControlFlowGraph {nodes = n; edges= e; functions= f} -> (n, e, f)
         
