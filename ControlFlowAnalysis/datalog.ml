@@ -15,17 +15,17 @@ type datalog_fact =
 
 let typed_to_generic = function
   | Dominator {variability=var; doms=p1; domed=p2} -> 
-      GFact {name= "Dominator"; variability=var; parametrs=[p1;p2]}
+      GFact {name= "dominator"; variability=var; parametrs=[p1;p2]}
   | PostDominator {variability=var; doms=p1; domed=p2} -> 
-      GFact {name= "PostDominator"; variability=var; parametrs=[p1;p2]}
+      GFact {name= "postDominator"; variability=var; parametrs=[p1;p2]}
   | Store {variability=var; variable=p1; node=p2} -> 
-      GFact {name= "Store"; variability=var; parametrs=[p1;p2]}
+      GFact {name= "store"; variability=var; parametrs=[p1;p2]}
   | Load {variability=var; variable=p1; node=p2} -> 
-      GFact {name= "Load"; variability=var; parametrs=[p1;p2]}
+      GFact {name= "load"; variability=var; parametrs=[p1;p2]}
   | PointsTo {variability=var; variable=p1; heap=p2} -> 
-      GFact {name= "PointsTo"; variability=var; parametrs=[p1;p2]}
+      GFact {name= "pointsTo"; variability=var; parametrs=[p1;p2]}
   | Assign {variability=var; tovar=p1; fromvar=p2} -> 
-      GFact {name= "Assign"; variability=var; parametrs=[p1;p2]}
+      GFact {name= "assign"; variability=var; parametrs=[p1;p2]}
 
 let brackets_surround target = "(" ^ target ^ ")"
 
@@ -45,13 +45,11 @@ let variabilityPrinterOption = function
   | None -> ""
 
 let coreFactPrinter (name: string) (params: string list) : string = 
-  name ^ 
-  "(" ^ 
-  (String.concat ~sep:"," params) ^ 
-  ")."
+  List.map ~f:(fun a-> "\"" ^ a ^ "\"") params 
+  |> fun a -> name ^  "(" ^ (String.concat ~sep:"," a) ^ ")"
   
 
 let factPrinter = function 
   GFact {variability=var; parametrs=p; name=n} -> 
-    coreFactPrinter n p ^ " @ " ^ variabilityPrinterOption var
+    coreFactPrinter n p ^ " @ " ^ variabilityPrinterOption var ^ "."
   

@@ -1,0 +1,15 @@
+// -- inputs --
+// .type var <: symbol
+// .type heap <: symbol
+
+.decl assign( a:symbol, b:symbol )
+.decl pointsTo( a:symbol, b:symbol )
+
+
+// -- facts --
+pointsTo("xmain","1") @ GOODBYE.
+assign("ymain","xmain") @ (GOODBYE/\HELLO).
+
+// -- analysis --
+.output pointsTo
+pointsTo(to, heap) :- assign(to, from), pointsTo(from, heap).
