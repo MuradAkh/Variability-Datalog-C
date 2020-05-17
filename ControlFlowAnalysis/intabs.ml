@@ -1,20 +1,22 @@
 open Typechef
-open Base
 open Datalog
-(* open GraphTools *)
-(* open Stdio *)
 open CfgAnalysis
+open Base
+
+let get_analysis = match (Sys.argv.(1)) with
+        | "POINTER" -> pointer_analysis_of_func
+        | "STORE_LOAD" -> store_loads_of_func
+        | "DOMINATOR" -> dominance
+        | _ -> pointer_analysis_of_func
 
 let () = 
-     
-
-        "./typechef_cfgs/malloc.cfg" 
+        "./_temp/output.cfg" 
         |> parseCfg 
         |> function ControlFlowGraph {nodes = n; edges= e; functions= f} -> (n, e, f)
         
         |> fun (n, _, f) -> (Map.find_exn f "main", n)
         |> fun (f, n) -> Map.find_exn n f 
-        |> fun a -> pointer_analysis_of_func a
+        |> fun a -> get_analysis a
         |> List.map ~f:typed_to_generic
         |> List.map ~f:factPrinter
         |> List.iter ~f:Stdio.print_endline
@@ -24,6 +26,9 @@ let () =
         (* |> fun (n, _, _) -> Map.to_alist n |> List.map ~f:(fun (_, b) -> b)
         |> make_graph
         |> plot *)
+
+
+
         
         
 

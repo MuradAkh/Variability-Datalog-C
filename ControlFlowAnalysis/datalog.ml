@@ -32,10 +32,10 @@ let brackets_surround target = "(" ^ target ^ ")"
 let rec variabilityPrinter = function
   | AtomV(s) -> s
   | AndV(s) -> List.map ~f:variabilityPrinter s
-    |> String.concat ~sep:"/\\" 
+    |> String.concat ~sep:" /\\ " 
     |> brackets_surround
   | OrV(s) -> List.map ~f:variabilityPrinter s
-    |> String.concat ~sep:"\\/"
+    |> String.concat ~sep:" \\/ "
     |> brackets_surround
   | NotV(s) -> "!" ^ variabilityPrinter s
   | NoVar()-> ""

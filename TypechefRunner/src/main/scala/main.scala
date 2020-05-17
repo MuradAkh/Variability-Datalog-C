@@ -15,8 +15,8 @@ object main {
 
     Frontend.processFile(new FrontendOptions {
       de.fosd.typechef.featureexpr.FeatureExprFactory.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory.bdd)
-//      files.add("/home/murad/typechef/main.c")
-      files.add("/home/murad/intabs/intAbs/src/test/blink1/main.c")
+      files.add("../_temp/target.c")
+      //files.add("/home/murad/intabs/intAbs/src/test/blink1/main.c")
 
 //      systemIncludePath.add("/usr/include/")
 //      systemIncludePath.add("/usr/lib/gcc/x86_64-linux-gnu/7/include/")
@@ -46,7 +46,7 @@ object main {
 //    val s2 = cf.getAllSucc(preds.head._1, CASTEnv.createASTEnv(ast))
 //    val s3 = cf.getAllSucc(s2.head._1, CASTEnv.createASTEnv(ast))
 
-    val cw = new CustomWriter(new FileWriter(new File("hello.cfg")))
+    val cw = new CustomWriter(new FileWriter(new File("../_temp/output.cfg")))
     cf.writeCFG("hello", new ComposedWriter(List(cw)))
   }
 
