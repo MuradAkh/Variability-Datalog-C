@@ -36,49 +36,49 @@ let reachable (nexts: node -> node list) (source : node) : node list  =
    in
    dfs visited source |> Set.to_list
 
-let rec ast_stores = function 
+let rec do_children f = function
   | AtomicAst(_) -> []
-  | OtherAst(asts) -> List.map ~f:ast_stores asts |> List.concat
-  | MallocAst(ast) -> ast_stores ast
+  | OtherAst(asts) -> List.map ~f:f asts |> List.concat
+  | MallocAst(ast) -> f ast
   | LoadAst(_) -> []
+  | AssignAst(store, rest) -> f rest
+
+let rec ast_stores = function 
+  | MallocAst(ast) -> ast_stores ast
   | AssignAst(store, rest) -> store :: ast_stores rest
+  | other -> do_children ast_stores other
 
 let rec ast_assigns = function 
-  | AtomicAst(_) -> []
-  | OtherAst(asts) -> List.map ~f:ast_assigns asts |> List.concat
-  | LoadAst(_) -> []
   | MallocAst(ast) -> ast_assigns ast
-  | AssignAst(store, rest) -> 
+  | AssignAst(store, rest) -> (
       match rest with 
         | LoadAst(r) -> [(store, r)]
-        | _ -> []
+        | _ -> [])
+  | other -> do_children ast_assigns other
+
 
 let rec ast_mallocs = function
-  | AtomicAst(_) -> []
-  | OtherAst(asts) -> List.map ~f:ast_mallocs asts |> List.concat
-  | LoadAst(_) ->  []
-  | MallocAst(ast) -> ast_mallocs ast
-  | AssignAst(store, rest) -> 
+  | AssignAst(store, rest) -> (
       match rest with 
       (* DANGER ZONE - MUTABLE VARIABLE *)
         | MallocAst(_) -> [(store, next_id_mutable)]
         | _ -> ast_mallocs rest
       (* END DANGER ZONE *)
+  )
+  | other -> do_children ast_mallocs other
+
 
 let rec ast_loads = function 
-  | AtomicAst(_) -> []
-  | OtherAst(asts) -> List.map ~f:ast_loads asts |> List.concat
   | LoadAst(id) -> [id]
-  | MallocAst(ast) -> ast_loads ast
-  | AssignAst(_, rest) -> ast_loads rest
+  | other -> do_children ast_loads other
+
 
   
 let rec ast_loads_stores = function 
-  | AtomicAst(_) -> []
-  | OtherAst(asts) -> List.map ~f:ast_loads_stores asts |> List.concat
   | LoadAst(id) -> [id]
-  | MallocAst(ast) -> ast_loads_stores ast
   | AssignAst(store, rest) -> store :: ast_loads_stores rest
+  | other -> do_children ast_loads_stores other
+
 
 
 let ast_finder (n : node) f t= 
