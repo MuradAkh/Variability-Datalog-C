@@ -36,12 +36,20 @@ let reachable (nexts: node -> node list) (source : node) : node list  =
    in
    dfs visited source |> Set.to_list
 
-let rec do_children f = function
+
+    
+let do_children f = function
   | AtomicAst(_) -> []
   | OtherAst(asts) -> List.map ~f:f asts |> List.concat
   | MallocAst(ast) -> f ast
   | LoadAst(_) -> []
-  | AssignAst(store, rest) -> f rest
+  | AssignAst(_, rest) -> f rest
+  | InitDeclAst(asts) -> List.map ~f:f asts |> List.concat
+  | InitAst(asts) -> List.map ~f:f asts |> List.concat
+
+let rec ast_loads = function 
+  | LoadAst(id) -> [id]
+  | other -> do_children ast_loads other
 
 let rec ast_stores = function 
   | MallocAst(ast) -> ast_stores ast
@@ -50,6 +58,10 @@ let rec ast_stores = function
 
 let rec ast_assigns = function 
   | MallocAst(ast) -> ast_assigns ast
+  | InitDeclAst([a; _; c]) -> (match c with
+    | OtherAst([InitAst([_; LoadAst(ld)])]) -> [(ast_loads a |> List.hd_exn, ld)]
+    | _ -> []
+  )
   | AssignAst(store, rest) -> (
       match rest with 
         | LoadAst(r) -> [(store, r)]
@@ -57,21 +69,33 @@ let rec ast_assigns = function
   | other -> do_children ast_assigns other
 
 
-let rec ast_mallocs = function
-  | AssignAst(store, rest) -> (
-      match rest with 
+let rec ast_mallocs input_ast = 
+  let rec transform_mallocs ast = match ast with 
+    | OtherAst(a :: asts) -> (match a with
+        | LoadAst(IdAst(x)) when String.equal x "malloc" -> MallocAst(ast)
+        | _ -> OtherAst(List.map ~f:transform_mallocs (a :: asts)))
+    | OtherAst(asts) -> OtherAst(List.map ~f:transform_mallocs asts)
+    | AssignAst(t, g) -> AssignAst(t, transform_mallocs g)
+    | InitAst(asts) -> InitAst(List.map ~f:transform_mallocs asts)
+    | InitDeclAst(asts) -> InitDeclAst(List.map ~f:transform_mallocs asts)
+    | _ -> ast
+  in 
+
+  match transform_mallocs input_ast with
+    | AssignAst(store, rest) -> (
+        match rest with 
+        (* DANGER ZONE - MUTABLE VARIABLE *)
+          | MallocAst(_) -> [(store, next_id_mutable)]
+          | _ -> ast_mallocs rest
+        (* END DANGER ZONE *)
+    )
+    | InitDeclAst([a; _; c]) -> (match c with
       (* DANGER ZONE - MUTABLE VARIABLE *)
-        | MallocAst(_) -> [(store, next_id_mutable)]
-        | _ -> ast_mallocs rest
+      | OtherAst([InitAst([_; MallocAst(_)])]) -> [(ast_loads a |> List.hd_exn, next_id_mutable)]
+      | _ -> []
       (* END DANGER ZONE *)
-  )
-  | other -> do_children ast_mallocs other
-
-
-let rec ast_loads = function 
-  | LoadAst(id) -> [id]
-  | other -> do_children ast_loads other
-
+    )
+    | other -> do_children ast_mallocs other
 
   
 let rec ast_loads_stores = function 

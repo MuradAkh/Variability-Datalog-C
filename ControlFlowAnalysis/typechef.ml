@@ -77,16 +77,7 @@ let parseCfg (filepath : string) =
 
     let parseAst (exp: string) : c_ast =
 
-    let rec transform_mallocs ast = match ast with 
-        | AtomicAst(_) -> ast
-        | OtherAst(a :: asts) -> (match a with
-            | LoadAst(IdAst(x)) when String.equal x "malloc" -> MallocAst(ast)
-            | _ -> OtherAst(List.map ~f:transform_mallocs (a :: asts)))
-        | OtherAst(asts) -> OtherAst(List.map ~f:transform_mallocs asts)
-        | LoadAst(_) -> ast
-        | MallocAst(_) -> ast
-        | AssignAst(t, g) -> AssignAst(t, transform_mallocs g)
-    in
+
 
         let parse_with_error lexbuf =
             try AstParser.prog AstLexer.read lexbuf with
@@ -100,7 +91,7 @@ let parseCfg (filepath : string) =
 
         Lexing.from_string exp 
             |> parse_with_error
-            |> function | Some (a) -> transform_mallocs a
+            |> function | Some (a) -> a
                         | _ -> AtomicAst("Unparsed")
 
     

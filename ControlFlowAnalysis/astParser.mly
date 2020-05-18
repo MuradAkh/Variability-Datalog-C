@@ -6,6 +6,8 @@
 %token ID_PAREN
 %token COMMA
 %token OTHER_PAREN
+%token INIT_PAREN
+%token INITD_PAREN
 %token EOF
 
 %start <TypechefTypes.c_ast option> prog
@@ -30,6 +32,8 @@ value:
     | ASSIGN_PAREN; id = ident; COMMA; EQUALS; COMMA; rest = value; RIGHT_PAREN {TypechefTypes.AssignAst(id, rest)}
     | ID_PAREN; atom = ATOMIC; RIGHT_PAREN {TypechefTypes.LoadAst(TypechefTypes.IdAst(atom))} 
     | OTHER_PAREN; o = other; RIGHT_PAREN {TypechefTypes.OtherAst o} 
+    | INIT_PAREN; o = other; RIGHT_PAREN {TypechefTypes.InitAst o} 
+    | INITD_PAREN; o = other; RIGHT_PAREN {TypechefTypes.InitDeclAst o} 
     | MALLOC_PAREN; o = value; RIGHT_PAREN {TypechefTypes.MallocAst o} 
     | OTHER_PAREN; RIGHT_PAREN {TypechefTypes.OtherAst []} 
     | atom = ATOMIC {TypechefTypes.AtomicAst atom}
