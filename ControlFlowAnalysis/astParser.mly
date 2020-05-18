@@ -4,6 +4,7 @@
 %token ASSIGN_PAREN
 %token MALLOC_PAREN
 %token CAST_PAREN
+%token POINTER_PAREN
 %token ID_PAREN
 %token COMMA
 %token OTHER_PAREN
@@ -20,8 +21,11 @@ prog:
     ;
 
 ident:
-    | ID_PAREN; atom = ATOMIC; RIGHT_PAREN {TypechefTypes.IdAst atom} 
+    | p = pointer {TypechefTypes.IdAst(fst p, snd p)} 
 
+pointer:
+    | ID_PAREN; atom = ATOMIC; RIGHT_PAREN {(atom, 0)} 
+    | POINTER_PAREN; p = pointer; RIGHT_PAREN {(fst p, (snd p) + 1)} 
 
 
 other:
@@ -31,10 +35,11 @@ other:
 
 value:
     | ASSIGN_PAREN; id = ident; COMMA; EQUALS; COMMA; rest = value; RIGHT_PAREN {TypechefTypes.AssignAst(id, rest)}
-    | ID_PAREN; atom = ATOMIC; RIGHT_PAREN {TypechefTypes.LoadAst(TypechefTypes.IdAst(atom))} 
+    | ID_PAREN; atom = ATOMIC; RIGHT_PAREN {TypechefTypes.LoadAst(TypechefTypes.IdAst(atom, 0))} 
     | OTHER_PAREN; o = other; RIGHT_PAREN {TypechefTypes.OtherAst o} 
     | INIT_PAREN; o = other; RIGHT_PAREN {TypechefTypes.InitAst o} 
     | INITD_PAREN; o = other; RIGHT_PAREN {TypechefTypes.InitDeclAst o} 
+    | POINTER_PAREN; o = pointer; RIGHT_PAREN {TypechefTypes.LoadAst(TypechefTypes.IdAst(fst o, snd o))} 
     | CAST_PAREN; o = other; RIGHT_PAREN {TypechefTypes.CastAst o} 
     | MALLOC_PAREN; o = value; RIGHT_PAREN {TypechefTypes.MallocAst o} 
     | OTHER_PAREN; RIGHT_PAREN {TypechefTypes.OtherAst []} 

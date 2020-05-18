@@ -83,7 +83,7 @@ let rec ast_assigns input_ast = match input_ast |> transform_casts with
 let rec ast_mallocs input_ast = 
   let rec transform_mallocs ast = match ast with 
     | OtherAst(a :: asts) -> (match a with
-        | LoadAst(IdAst(x)) when String.equal x "malloc" -> MallocAst(ast)
+        | LoadAst(IdAst(x, _)) when String.equal x "malloc" -> MallocAst(ast)
         | _ -> OtherAst(List.map ~f:transform_mallocs (a :: asts)))
     | ast -> do_transform_children transform_mallocs ast
   in 
@@ -128,13 +128,13 @@ let ast_finder (n : node) f t=
 
 (*AST to daltalog fact tuples*)
 let unary_transformer container = function 
-| IdAst(id) -> id ^ container_split ^ container
+| IdAst(id, _) -> id ^ container_split ^ container
 
 let binary_transformer container = function 
-| (IdAst(id), IdAst(id2)) -> (id ^ container_split ^ container, id2 ^ container_split ^ container)
+| (IdAst(id, _), IdAst(id2, _)) -> (id ^ container_split ^ container, id2 ^ container_split ^ container)
 
 let malloc_transformer container = function 
-| (IdAst(id), i) -> (id ^ container_split ^ container, Int.to_string i)
+| (IdAst(id, _), i) -> (id ^ container_split ^ container, Int.to_string i)
 
 let node_stores (n : node) : string list = 
   ast_finder n ast_stores unary_transformer

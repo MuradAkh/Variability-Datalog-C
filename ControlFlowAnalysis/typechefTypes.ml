@@ -8,9 +8,9 @@ type varE =
     | NoVar of unit
 [@@deriving sexp, compare]
 
-type c_ast_id = IdAst of string [@@deriving sexp, compare]
+type c_ast_id = IdAst of string * int [@@deriving sexp, compare]
 
-let string_of_ast_id = function | IdAst(s) -> s
+let string_of_ast_id = function | IdAst(s, _) -> s
 
 
 type c_ast = 
