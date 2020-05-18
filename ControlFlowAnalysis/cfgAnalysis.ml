@@ -128,13 +128,13 @@ let ast_finder (n : node) f t=
 
 (*AST to daltalog fact tuples*)
 let unary_transformer container = function 
-| IdAst(id, _) -> id ^ container_split ^ container
+| IdAst(id, p1) -> id ^ container_split ^ Int.to_string p1 ^ container
 
 let binary_transformer container = function 
-| (IdAst(id, _), IdAst(id2, _)) -> (id ^ container_split ^ container, id2 ^ container_split ^ container)
+| (IdAst(id, p1), IdAst(id2, p2)) -> (id ^ container_split ^ Int.to_string p1 ^ container, id2 ^ container_split  ^ Int.to_string p2 ^ container)
 
 let malloc_transformer container = function 
-| (IdAst(id, _), i) -> (id ^ container_split ^ container, Int.to_string i)
+| (IdAst(id, p1), i) -> (id ^ container_split ^ Int.to_string p1 ^ container, Int.to_string i)
 
 let node_stores (n : node) : string list = 
   ast_finder n ast_stores unary_transformer
