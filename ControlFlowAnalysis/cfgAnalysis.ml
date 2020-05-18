@@ -36,27 +36,38 @@ let reachable (nexts: node -> node list) (source : node) : node list  =
    in
    dfs visited source |> Set.to_list
 
-
     
-let do_children f = function
-  | AtomicAst(_) -> []
+let do_find_children f = function
   | OtherAst(asts) -> List.map ~f:f asts |> List.concat
   | MallocAst(ast) -> f ast
-  | LoadAst(_) -> []
   | AssignAst(_, rest) -> f rest
   | InitDeclAst(asts) -> List.map ~f:f asts |> List.concat
   | InitAst(asts) -> List.map ~f:f asts |> List.concat
+  | CastAst(asts) -> List.map ~f:f asts |> List.concat
+  | _ -> []
+
+let do_transform_children f = function
+    | OtherAst(asts) -> OtherAst(List.map ~f:f asts)
+    | AssignAst(t, g) -> AssignAst(t, f g)
+    | InitAst(asts) -> InitAst(List.map ~f:f asts)
+    | InitDeclAst(asts) -> InitDeclAst(List.map ~f:f asts)
+    | CastAst(asts) -> CastAst(List.map ~f:f asts)
+    | ast -> ast
+
+let rec transform_casts = function 
+  | CastAst([_; ast]) -> ast
+  | ast -> do_transform_children transform_casts ast
 
 let rec ast_loads = function 
   | LoadAst(id) -> [id]
-  | other -> do_children ast_loads other
+  | other -> do_find_children ast_loads other
 
 let rec ast_stores = function 
   | MallocAst(ast) -> ast_stores ast
   | AssignAst(store, rest) -> store :: ast_stores rest
-  | other -> do_children ast_stores other
+  | other -> do_find_children ast_stores other
 
-let rec ast_assigns = function 
+let rec ast_assigns input_ast = match input_ast |> transform_casts with 
   | MallocAst(ast) -> ast_assigns ast
   | InitDeclAst([a; _; c]) -> (match c with
     | OtherAst([InitAst([_; LoadAst(ld)])]) -> [(ast_loads a |> List.hd_exn, ld)]
@@ -66,7 +77,7 @@ let rec ast_assigns = function
       match rest with 
         | LoadAst(r) -> [(store, r)]
         | _ -> [])
-  | other -> do_children ast_assigns other
+  | other -> do_find_children ast_assigns other
 
 
 let rec ast_mallocs input_ast = 
@@ -74,14 +85,13 @@ let rec ast_mallocs input_ast =
     | OtherAst(a :: asts) -> (match a with
         | LoadAst(IdAst(x)) when String.equal x "malloc" -> MallocAst(ast)
         | _ -> OtherAst(List.map ~f:transform_mallocs (a :: asts)))
-    | OtherAst(asts) -> OtherAst(List.map ~f:transform_mallocs asts)
-    | AssignAst(t, g) -> AssignAst(t, transform_mallocs g)
-    | InitAst(asts) -> InitAst(List.map ~f:transform_mallocs asts)
-    | InitDeclAst(asts) -> InitDeclAst(List.map ~f:transform_mallocs asts)
-    | _ -> ast
+    | ast -> do_transform_children transform_mallocs ast
   in 
 
-  match transform_mallocs input_ast with
+  match input_ast 
+      |> transform_casts 
+      |> transform_mallocs 
+    with
     | AssignAst(store, rest) -> (
         match rest with 
         (* DANGER ZONE - MUTABLE VARIABLE *)
@@ -95,13 +105,13 @@ let rec ast_mallocs input_ast =
       | _ -> []
       (* END DANGER ZONE *)
     )
-    | other -> do_children ast_mallocs other
+    | other -> do_find_children ast_mallocs other
 
   
 let rec ast_loads_stores = function 
   | LoadAst(id) -> [id]
   | AssignAst(store, rest) -> store :: ast_loads_stores rest
-  | other -> do_children ast_loads_stores other
+  | other -> do_find_children ast_loads_stores other
 
 
 
