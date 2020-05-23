@@ -21,6 +21,7 @@ rule read =
     | initd_paren { INITD_PAREN }
     | "CastExpr(" { CAST_PAREN }
     | "PointerDerefExpr(" { POINTER_PAREN }
+    | "ArrayAccess(" { ARRAY_PAREN }
     | id_paren { ID_PAREN }
     | init_paren { INIT_PAREN } 
     | other_paren {OTHER_PAREN }

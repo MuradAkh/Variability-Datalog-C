@@ -4,6 +4,7 @@
 %token ASSIGN_PAREN
 %token MALLOC_PAREN
 %token CAST_PAREN
+%token ARRAY_PAREN
 %token POINTER_PAREN
 %token ID_PAREN
 %token COMMA
@@ -42,6 +43,7 @@ value:
     | POINTER_PAREN; o = pointer; RIGHT_PAREN {TypechefTypes.LoadAst(TypechefTypes.IdAst(fst o, snd o))} 
     | CAST_PAREN; o = other; RIGHT_PAREN {TypechefTypes.CastAst o} 
     | MALLOC_PAREN; o = value; RIGHT_PAREN {TypechefTypes.MallocAst o} 
+    | ARRAY_PAREN; o = value; RIGHT_PAREN {TypechefTypes.ArrayAst o} 
     | OTHER_PAREN; RIGHT_PAREN {TypechefTypes.OtherAst []} 
     | atom = ATOMIC {TypechefTypes.AtomicAst atom}
 

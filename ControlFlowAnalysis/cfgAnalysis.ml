@@ -67,17 +67,28 @@ let rec ast_stores = function
   | AssignAst(store, rest) -> store :: ast_stores rest
   | other -> do_find_children ast_stores other
 
-let rec ast_assigns input_ast = match input_ast |> transform_casts with 
-  | MallocAst(ast) -> ast_assigns ast
-  | InitDeclAst([a; _; c]) -> (match c with
-    | OtherAst([InitAst([_; LoadAst(ld)])]) -> [(ast_loads a |> List.hd_exn, ld)]
-    | _ -> []
-  )
-  | AssignAst(store, rest) -> (
-      match rest with 
-        | LoadAst(r) -> [(store, r)]
-        | _ -> [])
-  | other -> do_find_children ast_assigns other
+let rec ast_assigns input_ast = 
+  let rec transform_array_access ast = match ast with 
+    | OtherAst(a :: b :: asts) -> (match b with
+        | ArrayAst(_) -> a
+        | _ -> OtherAst(List.map ~f:transform_array_access (a :: b :: asts)))
+    | ast -> do_transform_children transform_array_access ast
+  in 
+
+  match input_ast 
+      |> transform_casts 
+      |> transform_array_access 
+    with 
+      | MallocAst(ast) -> ast_assigns ast
+      | InitDeclAst([a; _; c]) -> (match c with
+        | OtherAst([InitAst([_; LoadAst(ld)])]) -> [(ast_loads a |> List.hd_exn, ld)]
+        | _ -> []
+      )
+      | AssignAst(store, rest) -> (
+          match rest with 
+            | LoadAst(r) -> [(store, r)]
+            | _ -> [])
+      | other -> do_find_children ast_assigns other
 
 
 let rec ast_mallocs input_ast = 

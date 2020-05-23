@@ -22,5 +22,6 @@ type c_ast =
     | CastAst of c_ast list 
     | LoadAst of c_ast_id
     | MallocAst of c_ast
+    | ArrayAst of c_ast
     [@@deriving sexp, compare]
 
