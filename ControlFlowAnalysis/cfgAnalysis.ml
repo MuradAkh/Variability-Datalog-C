@@ -39,8 +39,8 @@ let reachable (nexts: node -> node list) (source : node) : node list  =
     
 let do_find_children f = function
   | OtherAst(asts) -> List.map ~f:f asts |> List.concat
-  | MallocAst(ast) -> f ast
-  | AssignAst(_, rest) -> f rest
+  | MallocTast(ast) -> f ast
+  | AssignTast(_, rest) -> f rest
   | InitDeclAst(asts) -> List.map ~f:f asts |> List.concat
   | InitAst(asts) -> List.map ~f:f asts |> List.concat
   | CastAst(asts) -> List.map ~f:f asts |> List.concat
@@ -48,7 +48,7 @@ let do_find_children f = function
 
 let do_transform_children f = function
     | OtherAst(asts) -> OtherAst(List.map ~f:f asts)
-    | AssignAst(t, g) -> AssignAst(t, f g)
+    | AssignTast(t, g) -> AssignTast(t, f g)
     | InitAst(asts) -> InitAst(List.map ~f:f asts)
     | InitDeclAst(asts) -> InitDeclAst(List.map ~f:f asts)
     | CastAst(asts) -> CastAst(List.map ~f:f asts)
@@ -58,13 +58,16 @@ let rec transform_casts = function
   | CastAst([_; ast]) -> ast
   | ast -> do_transform_children transform_casts ast
 
+let rec transform_assigns = function 
+  | AssignExprAst(LoadAst(id), rest) -> AssignTast(id, rest)
+  | ast -> do_transform_children transform_assigns ast
+
 let rec ast_loads = function 
   | LoadAst(id) -> [id]
   | other -> do_find_children ast_loads other
 
-let rec ast_stores = function 
-  | MallocAst(ast) -> ast_stores ast
-  | AssignAst(store, rest) -> store :: ast_stores rest
+let rec ast_stores input_ast = match input_ast |> transform_assigns with 
+  | AssignTast(store, rest) -> store :: ast_stores rest
   | other -> do_find_children ast_stores other
 
 let rec ast_assigns input_ast = 
@@ -78,13 +81,14 @@ let rec ast_assigns input_ast =
   match input_ast 
       |> transform_casts 
       |> transform_array_access 
+      |> transform_assigns
     with 
-      | MallocAst(ast) -> ast_assigns ast
+      | MallocTast(ast) -> ast_assigns ast
       | InitDeclAst([a; _; c]) -> (match c with
         | OtherAst([InitAst([_; LoadAst(ld)])]) -> [(ast_loads a |> List.hd_exn, ld)]
         | _ -> []
       )
-      | AssignAst(store, rest) -> (
+      | AssignTast(store, rest) -> (
           match rest with 
             | LoadAst(r) -> [(store, r)]
             | _ -> [])
@@ -94,7 +98,7 @@ let rec ast_assigns input_ast =
 let rec ast_mallocs input_ast = 
   let rec transform_mallocs ast = match ast with 
     | OtherAst(a :: asts) -> (match a with
-        | LoadAst(IdAst(x, _)) when String.equal x "malloc" -> MallocAst(ast)
+        | LoadAst(IdAst(x, _)) when String.equal x "malloc" -> MallocTast(ast)
         | _ -> OtherAst(List.map ~f:transform_mallocs (a :: asts)))
     | ast -> do_transform_children transform_mallocs ast
   in 
@@ -103,16 +107,16 @@ let rec ast_mallocs input_ast =
       |> transform_casts 
       |> transform_mallocs 
     with
-    | AssignAst(store, rest) -> (
+    | AssignTast(store, rest) -> (
         match rest with 
         (* DANGER ZONE - MUTABLE VARIABLE *)
-          | MallocAst(_) -> [(store, next_id_mutable)]
+          | MallocTast(_) -> [(store, next_id_mutable)]
           | _ -> ast_mallocs rest
         (* END DANGER ZONE *)
     )
     | InitDeclAst([a; _; c]) -> (match c with
       (* DANGER ZONE - MUTABLE VARIABLE *)
-      | OtherAst([InitAst([_; MallocAst(_)])]) -> [(ast_loads a |> List.hd_exn, next_id_mutable)]
+      | OtherAst([InitAst([_; MallocTast(_)])]) -> [(ast_loads a |> List.hd_exn, next_id_mutable)]
       | _ -> []
       (* END DANGER ZONE *)
     )
@@ -121,7 +125,7 @@ let rec ast_mallocs input_ast =
   
 let rec ast_loads_stores = function 
   | LoadAst(id) -> [id]
-  | AssignAst(store, rest) -> store :: ast_loads_stores rest
+  | AssignTast(store, rest) -> store :: ast_loads_stores rest
   | other -> do_find_children ast_loads_stores other
 
 

@@ -3,3 +3,7 @@ analysis:
 
 all: 
 	analysis
+
+clean:
+	rm -rf ./_temp
+	cd ControlFlowAnalysis && rm -rf ./_build
