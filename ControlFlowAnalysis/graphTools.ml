@@ -66,7 +66,7 @@ let make_graph (nodes: node list) : G.t =
 
 
 let plot (graph : G.t) = 
-   let file = Stdio.Out_channel.create "mygraph.dot" in
+   let file = Stdio.Out_channel.create "output_cfg.dot" in
    Dot.output_graph file graph
 
 let dominaors (graph : G.t) 

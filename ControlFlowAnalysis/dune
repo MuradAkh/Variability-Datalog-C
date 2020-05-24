@@ -1,5 +1,5 @@
 (executable
- (name intabs)
+ (name cli)
  (libraries base stdio ocamlgraph)
   (preprocess (pps ppx_sexp_conv ppx_jane))
 )

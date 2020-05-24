@@ -1,0 +1,5 @@
+*.dot
+_temp/
+TypechefRunner/_build/
+TypechefRunner/.idea/
+_build/

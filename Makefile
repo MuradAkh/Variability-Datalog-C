@@ -1,5 +1,5 @@
 analysis:
-	eval $(opam config env) && cd ControlFlowAnalysis && dune build intabs.exe
+	eval $(opam config env) && cd ControlFlowAnalysis && dune build cli.exe
 
 all: 
 	analysis

@@ -2,13 +2,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+int hello(int a){
+
+}
+
 int main(int argc, char *argv[]) {
   char *x = (char *) malloc(sizeof(char));
   //*x = 'a';
   char *y;
-  char a = 1;
+  char a = hello(0);
   *y = a;
-  y = (char *) x;
+  y[1] = (char *) x;
   char *z = y[1];
   int f = 1;
   int g = (int) f;
