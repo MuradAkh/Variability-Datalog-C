@@ -6,22 +6,23 @@ open Typechef
 (* representation of a node -- must be hashable *)
 module GNode = struct
    type t = node
-   let compare a b = String.compare (id_of_node a) (id_of_node b)
-   let hash = Hashtbl.hash
-   let equal = (==)
+   let compare a b = Base.String.compare (id_of_node a) (id_of_node b)
+   let hash = fun (a:node) -> Base.Hashtbl.hash (id_of_node a)
+   let equal a b = Base.String.equal (id_of_node a) (id_of_node b)
 end
 
 (* representation of an edge -- must be comparable *)
 module GEdge = struct
-   type t = string
-   let compare = String.compare
-   let equal = (=)
+   type t = Base.string
+   let compare = Base.String.compare
+   let equal = Base.String.equal
    let default = ""
 end
 
 
 (* a functional/persistent graph *)
 module G = Graph.Persistent.Digraph.ConcreteBidirectionalLabeled(GNode)(GEdge)
+module GI = Graph.Imperative.Digraph.ConcreteBidirectionalLabeled(GNode)(GEdge)
 module Dfs = Graph.Traverse.Dfs(G)
 
 
@@ -69,27 +70,28 @@ let plot (graph : G.t) =
    let file = Stdio.Out_channel.create "output_cfg.dot" in
    Dot.output_graph file graph
 
+let to_impertive (pers: G.t) : GI.t = 
+   let imp = GI.create ~size:(G.nb_vertex pers) () in 
+   G.iter_vertex (fun a -> GI.add_vertex imp a) pers;
+   G.iter_edges_e (fun a -> GI.add_edge_e imp a) pers;
+   (* GI.iter_vertex (fun a -> print_endline @@ id_of_node a) imp; *)
+   imp
+
 let dominaors (graph : G.t) 
               (start : node)
-              ?(g_pred=G.pred) 
-              ?(g_succ=G.succ)
+              ?(g_pred=GI.pred) 
+              ?(g_succ=GI.succ)
               (vs: node list): (node * node) list = 
               
-   let module Dom = Graph.Dominator.Make_graph (struct
-      include G
-      let pred = g_pred
+
+   let module Dom = Graph.Dominator.Make_graph (struct 
+      include GI 
       let succ = g_succ
-      let fold_vertex = G.fold_vertex
-      let iter_vertex = G.iter_vertex
-      let iter_succ = G.iter_succ
-      let nb_vertex = G.nb_vertex
-      let add_edge _ _ _ = ()
-      let create : ?size:_ -> unit -> t = fun ?size:_ () -> empty
+      let pred = g_pred
    end) in
 
-   let domg = Dom.compute_all graph start in   
-      print_endline "hello";
-
+   let domg = Dom.compute_all (to_impertive graph) start in  
+ 
    let check_dom acc curr = 
       domg.dominators curr 
          |> fun a -> List.map (fun v -> (v, curr)) a

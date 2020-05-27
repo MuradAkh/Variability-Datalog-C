@@ -277,4 +277,4 @@ let dominance (func : node) : datalog_fact list =
 
 let post_dominance (func : node) : datalog_fact list =
   (* TODO: last node??*)
-  generic_dom func preds_node ~g_pred:G.succ ~g_succ:G.pred
+  generic_dom func preds_node ~g_pred:GI.succ ~g_succ:GI.pred
