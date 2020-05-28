@@ -265,6 +265,34 @@ let node_cross ((a, b) : node * node) =
   ignore b;
   ()
 
+let cycles (func: node) : datalog_fact list = 
+  let nodes = reachable succs_node func in
+  let graph = to_impertive @@ make_graph nodes in 
+
+  (* DANGER - MUTABLE VAR *)
+  let counter : int ref = ref 0 in 
+
+  let make_all_facts (facts: datalog_fact list) (cycle: node list) = 
+    (* DANGER - MUTATION *)
+    counter := !counter + 1;
+    (* END DANGER - MUTATION *)
+
+    let make_nodecycles acc = function 
+      | Node{nodeID=id; varNode=var; _} ->
+      NodeCycle{variability=Some(var); nodeId=id; cycleId= Int.to_string !counter} :: acc
+    in
+
+    List.fold ~init:[] ~f:make_nodecycles cycle 
+    @ Cycle {
+      variability=Some(AndV(List.map ~f:(function Node{varNode=v; _} -> v) cycle)); 
+      id= Int.to_string !counter
+    }
+    :: facts
+  in
+
+  Cycles.find_all_cycles_johnson graph
+  |> List.fold ~init:[] ~f:make_all_facts  
+
 
 let generic_dom ?g_pred ?g_succ (goal: node) (nexts : node -> node list) : datalog_fact list = 
   let nodes = reachable nexts goal in

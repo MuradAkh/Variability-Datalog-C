@@ -11,6 +11,8 @@ type datalog_fact =
     | Load of {variability : varE option; variable: string; node : string}
     | PointsTo of {variability : varE option; variable: string; heap : string}
     | Assign of {variability : varE option; tovar: string; fromvar : string}
+    | Cycle of {variability : varE option; id : string}
+    | NodeCycle of {variability : varE option; cycleId: string; nodeId: string}
     [@@deriving sexp]
 
 let typed_to_generic = function
@@ -26,6 +28,10 @@ let typed_to_generic = function
       GFact {name= "pointsTo"; variability=var; parametrs=[p1;p2]}
   | Assign {variability=var; tovar=p1; fromvar=p2} -> 
       GFact {name= "assign"; variability=var; parametrs=[p1;p2]}
+  | Cycle {variability=var; id=p1} -> 
+      GFact {name= "cycle"; variability=var; parametrs=[p1]}
+  | NodeCycle {variability=var; cycleId=p1; nodeId=p2} -> 
+      GFact {name= "cycleNode"; variability=var; parametrs=[p1;p2]}
 
 let brackets_surround target = "(" ^ target ^ ")"
 
