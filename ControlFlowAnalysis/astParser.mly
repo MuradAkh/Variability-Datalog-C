@@ -23,10 +23,6 @@ prog:
 /* ident:
     | p = pointer {TypechefTypes.IdAst(fst p, snd p)}  */
 
-pointer:
-    | ID_PAREN; atom = ATOMIC; RIGHT_PAREN {(atom, 0)} 
-    | POINTER_PAREN; p = pointer; RIGHT_PAREN {(fst p, (snd p) + 1)} 
-
 
 other:
     | ast = value; COMMA; rest = other {ast :: rest}
@@ -40,7 +36,7 @@ value:
     | OTHER_PAREN; o = other; RIGHT_PAREN {TypechefTypes.OtherAst o} 
     | INIT_PAREN; o = other; RIGHT_PAREN {TypechefTypes.InitAst o} 
     | INITD_PAREN; o = other; RIGHT_PAREN {TypechefTypes.InitDeclAst o} 
-    | POINTER_PAREN; o = pointer; RIGHT_PAREN {TypechefTypes.LoadAst(TypechefTypes.IdAst(fst o, snd o))} 
+    | POINTER_PAREN; o = value; RIGHT_PAREN {TypechefTypes.PointerDerefAst o} 
     | CAST_PAREN; o = other; RIGHT_PAREN {TypechefTypes.CastAst o} 
     | ARRAY_PAREN; o = value; RIGHT_PAREN {TypechefTypes.ArrayAst o} 
     | OTHER_PAREN; RIGHT_PAREN {TypechefTypes.OtherAst []} 

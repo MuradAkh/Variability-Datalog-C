@@ -76,6 +76,11 @@ let parseCfg (filepath : string) =
     in
 
     let parseAst (exp: string) : c_ast =
+        let print_position (lexbuf : Lexing.lexbuf) =
+            let pos = lexbuf.lex_curr_p in
+            eprintf "%s:%d:%d" pos.pos_fname
+            pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
+        in
 
 
 
@@ -86,6 +91,7 @@ let parseCfg (filepath : string) =
                 None
             | AstParser.Error ->
                 eprintf  "parser error on %s \n" exp;
+                print_position lexbuf;
                 Caml.exit (-1)
         in
 

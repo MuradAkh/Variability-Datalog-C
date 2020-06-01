@@ -23,6 +23,7 @@ type c_ast =
     | CastAst of c_ast list 
     | LoadAst of c_ast_id
     | ArrayAst of c_ast
+    | PointerDerefAst of c_ast
 
     | AssignTast of c_ast_id * c_ast
     | MallocTast of c_ast
