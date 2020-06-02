@@ -62,6 +62,14 @@ let rec transform_assigns = function
   | AssignExprAst(LoadAst(id), rest) -> AssignTast(id, rest)
   | ast -> do_transform_children transform_assigns ast
 
+
+let rec transform_pointers = function
+  | PointerDerefAst(ast) -> 
+    (match transform_pointers ast with
+      | LoadAst(IdAst(str, i)) -> LoadAst(IdAst(str, i + 1))
+      | _ -> ast)
+  | ast -> do_transform_children transform_pointers ast
+
 let rec ast_loads = function 
   | LoadAst(id) -> [id]
   | other -> do_find_children ast_loads other
@@ -80,6 +88,7 @@ let rec ast_assigns input_ast =
 
   match input_ast 
       |> transform_casts 
+      |> transform_pointers
       |> transform_array_access 
       |> transform_assigns
     with 
@@ -105,6 +114,7 @@ let rec ast_mallocs input_ast =
 
   match input_ast 
       |> transform_casts 
+      |> transform_pointers
       |> transform_mallocs 
     with
     | AssignTast(store, rest) -> (
