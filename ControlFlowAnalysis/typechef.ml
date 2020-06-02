@@ -108,7 +108,7 @@ let parseCfg (filepath : string) =
         |> String.split ~on:'%'
         |> fun (a : string list) -> 
             match expr_type with 
-            | "declaration" -> Declaration {value=List.hd_exn a |> parseAst; container=List.nth_exn a 1}
+            | "declaration" -> Declaration {value=List.hd_exn a |> parseAst; container= match List.nth a 1 with Some(n) -> n | _ -> ""}
             | "statement" -> Statement {value=List.hd_exn a |> parseAst; container=List.nth_exn a 1}
             | "function" -> Function {value=List.hd_exn a}
             | "function-inline" -> FunctionInline {value=List.hd_exn a}
