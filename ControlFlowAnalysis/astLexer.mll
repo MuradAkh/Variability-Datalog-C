@@ -11,7 +11,7 @@ let init_paren = "Initializer("
 let id_paren = "Id("
 let other_paren =  ['a'-'z' 'A'-'Z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_']* "("
 let white = [' ' '\t']+
-let atomic = ['|' '/' '0'-'9' 'a'-'z' 'A'-'Z' '_' '+' '<' '>' '"' '-' '<' '>' '*' '.' '\\' '\''] ['\\' '\'' '+' '=' '-' '<' '>' 'a'-'z' 'A'-'Z' '0'-'9' '_' '"']*
+let atomic = ['|' '/' '&' '~' '0'-'9' 'a'-'z' 'A'-'Z' '_' '+' '<' '>' '"' '-' '<' '>' '*' '.' '\\' '\''] ['\\' '\'' '+' '=' '-' '<' '>' 'a'-'z' 'A'-'Z' '0'-'9' '_' '"']*
 let string = '"'['%' '0'-'9' 'a'-'z' 'A'-'Z' '_' '+' '<' '>'  '-' '<' '>' ' ' '\\']*'"'
 
 rule read = 
@@ -21,6 +21,8 @@ rule read =
     | assign_paren { ASSIGN_PAREN }
     | initd_paren { INITD_PAREN }
     | "CastExpr(" { CAST_PAREN }
+    | "PostfixExpr(" {POSTFIX_PAREN}
+    | "PointerPostfixSuffix(" {POINTER_POSTFIX_PAREN}
     | "PointerDerefExpr(" { POINTER_PAREN }
     | "ArrayAccess(" { ARRAY_PAREN }
     | id_paren { ID_PAREN }

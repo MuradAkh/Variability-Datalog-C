@@ -21,6 +21,8 @@ type c_ast =
     | InitAst of c_ast list
     | InitDeclAst of c_ast list 
     | CastAst of c_ast list 
+    | PostfixAst of c_ast * c_ast
+    | PointerPostfixAst of c_ast * c_ast
     | LoadAst of c_ast_id
     | ArrayAst of c_ast
     | PointerDerefAst of c_ast

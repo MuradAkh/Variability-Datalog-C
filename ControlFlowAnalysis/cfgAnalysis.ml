@@ -58,6 +58,13 @@ let rec transform_casts = function
   | CastAst([_; ast]) -> ast
   | ast -> do_transform_children transform_casts ast
 
+let rec transform_struct_access = function 
+  | PostfixAst(
+      LoadAst(IdAst(strct, depth)), 
+      PointerPostfixAst(AtomicAst("->"), LoadAst(IdAst(field, _)))
+    ) -> LoadAst(IdAst(strct ^ "->" ^ field, depth))
+  | ast -> do_transform_children transform_struct_access ast
+
 let rec transform_assigns = function 
   | AssignExprAst(LoadAst(id), rest) -> AssignTast(id, rest)
   | ast -> do_transform_children transform_assigns ast
@@ -88,6 +95,7 @@ let rec ast_assigns input_ast =
 
   match input_ast 
       |> transform_casts 
+      |> transform_struct_access 
       |> transform_pointers
       |> transform_array_access 
       |> transform_assigns
@@ -114,6 +122,7 @@ let rec ast_mallocs input_ast =
 
   match input_ast 
       |> transform_casts 
+      |> transform_pointers
       |> transform_pointers
       |> transform_mallocs 
     with

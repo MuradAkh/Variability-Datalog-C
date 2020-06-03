@@ -10,6 +10,8 @@
 %token OTHER_PAREN
 %token INIT_PAREN
 %token INITD_PAREN
+%token POSTFIX_PAREN
+%token POINTER_POSTFIX_PAREN
 %token EOF
 
 %start <TypechefTypes.c_ast option> prog
@@ -32,6 +34,8 @@ other:
 value:
     /* | ASSIGN_PAREN; id = ident; COMMA; EQUALS; COMMA; rest = value; RIGHT_PAREN {TypechefTypes.AssignAst(id, rest)} */
     | ASSIGN_PAREN; o = value; COMMA; EQUALS; COMMA; rest = value; RIGHT_PAREN {TypechefTypes.AssignExprAst(o, rest)}
+    | POSTFIX_PAREN; f = value; COMMA; s = value; RIGHT_PAREN {TypechefTypes.PostfixAst(f, s)}
+    | POINTER_POSTFIX_PAREN; f = value; COMMA; s = value; RIGHT_PAREN {TypechefTypes.PointerPostfixAst(f, s)}
     | ID_PAREN; atom = ATOMIC; RIGHT_PAREN {TypechefTypes.LoadAst(TypechefTypes.IdAst(atom, 0))} 
     | OTHER_PAREN; o = other; RIGHT_PAREN {TypechefTypes.OtherAst o} 
     | INIT_PAREN; o = other; RIGHT_PAREN {TypechefTypes.InitAst o} 
