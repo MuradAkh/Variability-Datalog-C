@@ -18,10 +18,10 @@ let plot n = Map.to_alist n
 let () = 
         "./_temp/output.cfg" 
         |> parseCfg 
-        |> function ControlFlowGraph {nodes = n; edges= e; functions= f} -> plot n; (n, e, f)
+        |> function ControlFlowGraph {nodes = n; edges= e; functions= f} -> Logger.sLog "parsed"; plot n; (n, e, f)
         |> fun (n, _, functions) -> functions
         |> Map.iter ~f:(
-                fun func -> Map.find_exn n func
+                fun func -> Logger.sLog @@ "analyzing: " ^ func ;Map.find_exn n func
                 |> get_analysis
                 |> List.map ~f:typed_to_generic
                 |> List.map ~f:factPrinter

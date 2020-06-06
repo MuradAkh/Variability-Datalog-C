@@ -30,11 +30,12 @@ let reachable (nexts: node -> node list) (source : node) : node list  =
    let visited = Set.empty (module MNode) in
 
    let rec dfs set n = 
-      (* if Base.Set.mem set n then set else *)
+      if Base.Set.mem set n then set else(
       let updated = Set.add set n in
-      List.fold ~f:dfs ~init:updated @@ nexts n
+      List.fold ~f:dfs ~init:updated @@ nexts n)
    in
-   dfs visited source |> Set.to_list
+   let out = dfs visited source |> Set.to_list in
+   out
 
     
 let do_find_children f = function
@@ -115,7 +116,7 @@ let rec ast_assigns input_ast =
 let rec ast_mallocs input_ast = 
   let rec transform_mallocs ast = match ast with 
     | OtherAst(a :: asts) -> (match a with
-        | LoadAst(IdAst(x, _)) when String.equal x "malloc" -> MallocTast(ast)
+        | LoadAst(IdAst(x, _)) when (String.equal x "malloc") || (String.equal x "xmalloc") -> MallocTast(ast)
         | _ -> OtherAst(List.map ~f:transform_mallocs (a :: asts)))
     | ast -> do_transform_children transform_mallocs ast
   in 

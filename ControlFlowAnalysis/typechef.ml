@@ -2,10 +2,7 @@ open Base
 open Stdio
 open TypechefTypes
 
-let qLog transformer target = 
-    transformer target 
-        |> Sexp.to_string 
-        |> print_endline
+
 
 type world = string * string [@@deriving sexp]
 
@@ -111,7 +108,8 @@ let parseCfg (filepath : string) =
             | "declaration" -> Declaration {value=List.hd_exn a |> parseAst; container= match List.nth a 1 with Some(n) -> n | _ -> ""}
             | "statement" -> Statement {value=List.hd_exn a |> parseAst; container=List.nth_exn a 1}
             | "function" -> Function {value=List.hd_exn a}
-            | "function-inline" -> FunctionInline {value=List.hd_exn a}
+            | "function-static" -> Function {value=List.hd_exn a}
+            | "function-inline" -> Function {value=List.hd_exn a}
             | _ -> Unparsed {value=List.hd_exn a; container=List.nth a 1}
     in
 
@@ -200,6 +198,7 @@ let parseCfg (filepath : string) =
             let Node {nodeValue = nodeVal; _} = n in 
             match nodeVal with 
                 | Function {value = expVal; _} -> Map.set functions ~key:expVal ~data:(id_of_node n) 
+                | FunctionInline {value = expVal; _} -> Map.set functions ~key:expVal ~data:(id_of_node n) 
                 | _ -> functions;
         in
         
