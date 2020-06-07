@@ -45,7 +45,14 @@ let do_find_children f = function
   | InitDeclAst(asts) -> List.map ~f:f asts |> List.concat
   | InitAst(asts) -> List.map ~f:f asts |> List.concat
   | CastAst(asts) -> List.map ~f:f asts |> List.concat
-  | _ -> []
+  | AssignExprAst(a1, a2) -> List.map ~f:f [a1; a2] |> List.concat
+  | PointerDerefAst(ast) -> f ast
+  | PointerPostfixAst(a1, a2) -> List.map ~f:f [a1; a2] |> List.concat
+  | PostfixAst(a1, a2) -> List.map ~f:f [a1; a2] |> List.concat
+  | ArrayAst(a1) -> f a1
+  | AtomicAst(_) -> []
+  | LoadAst(_) -> []
+
 
 let do_transform_children f = function
     | OtherAst(asts) -> OtherAst(List.map ~f:f asts)
@@ -53,6 +60,12 @@ let do_transform_children f = function
     | InitAst(asts) -> InitAst(List.map ~f:f asts)
     | InitDeclAst(asts) -> InitDeclAst(List.map ~f:f asts)
     | CastAst(asts) -> CastAst(List.map ~f:f asts)
+    | MallocTast(ast) -> MallocTast(f ast)
+    | AssignExprAst(a1, a2) -> AssignExprAst(f a1, f a2)
+    | PointerDerefAst(ast) -> PointerDerefAst(f ast)
+    | PointerPostfixAst(a1, a2) -> PointerPostfixAst(f a1, f a2)
+    | PostfixAst(a1, a2) -> PostfixAst(f a1, f a2)
+    | ArrayAst(a1) -> ArrayAst(f a1)
     | ast -> ast
 
 let rec transform_casts = function 
@@ -64,6 +77,10 @@ let rec transform_struct_access = function
       LoadAst(IdAst(strct, depth)), 
       PointerPostfixAst(AtomicAst("->"), LoadAst(IdAst(field, _)))
     ) -> LoadAst(IdAst(strct ^ "->" ^ field, depth))
+  | PostfixAst(
+      LoadAst(IdAst(strct, depth)), 
+      PointerPostfixAst(AtomicAst("."), LoadAst(IdAst(field, _)))
+    ) -> LoadAst(IdAst(strct ^ "." ^ field, depth))
   | ast -> do_transform_children transform_struct_access ast
 
 let rec transform_assigns = function 
@@ -78,6 +95,13 @@ let rec transform_pointers = function
       | _ -> ast)
   | ast -> do_transform_children transform_pointers ast
 
+  let rec transform_array_access ast = match ast with 
+    | OtherAst(a :: b :: asts) -> (match b with
+        | ArrayAst(_) -> a
+        | _ -> OtherAst(List.map ~f:transform_array_access (a :: b :: asts)))
+    | ast -> do_transform_children transform_array_access ast
+  
+
 let rec ast_loads = function 
   | LoadAst(id) -> [id]
   | other -> do_find_children ast_loads other
@@ -87,13 +111,6 @@ let rec ast_stores input_ast = match input_ast |> transform_assigns with
   | other -> do_find_children ast_stores other
 
 let rec ast_assigns input_ast = 
-  let rec transform_array_access ast = match ast with 
-    | OtherAst(a :: b :: asts) -> (match b with
-        | ArrayAst(_) -> a
-        | _ -> OtherAst(List.map ~f:transform_array_access (a :: b :: asts)))
-    | ast -> do_transform_children transform_array_access ast
-  in 
-
   match input_ast 
       |> transform_casts 
       |> transform_struct_access 
@@ -101,7 +118,6 @@ let rec ast_assigns input_ast =
       |> transform_array_access 
       |> transform_assigns
     with 
-      | MallocTast(ast) -> ast_assigns ast
       | InitDeclAst([a; _; c]) -> (match c with
         | OtherAst([InitAst([_; LoadAst(ld)])]) -> [(ast_loads a |> List.hd_exn, ld)]
         | _ -> []
@@ -115,17 +131,21 @@ let rec ast_assigns input_ast =
 
 let rec ast_mallocs input_ast = 
   let rec transform_mallocs ast = match ast with 
-    | OtherAst(a :: asts) -> (match a with
-        | LoadAst(IdAst(x, _)) when (String.equal x "malloc") || (String.equal x "xmalloc") -> MallocTast(ast)
-        | _ -> OtherAst(List.map ~f:transform_mallocs (a :: asts)))
+    | PostfixAst(a, b) -> (match a with
+        | LoadAst(IdAst(x, _)) when (String.equal x "malloc") || (String.equal x "xmalloc") -> 
+            Logger.sLog "transformed malloc";
+            MallocTast(ast)
+        | _ -> Logger.qLog sexp_of_c_ast a; PostfixAst(transform_mallocs a, transform_mallocs b))
     | ast -> do_transform_children transform_mallocs ast
   in 
 
   match input_ast 
       |> transform_casts 
       |> transform_pointers
-      |> transform_pointers
+      |> transform_assigns
       |> transform_mallocs 
+      |> transform_struct_access
+      |> transform_array_access
     with
     | AssignTast(store, rest) -> (
         match rest with 
