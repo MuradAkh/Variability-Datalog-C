@@ -12,6 +12,7 @@ import de.fosd.typechef.parser.c.{CASTEnv, TranslationUnit}
 object main {
   def main(args: Array[String]): Unit = {
     var filename : String = null;
+    var home : String =  System.getenv("HOME");
 
     Frontend.processFile(new FrontendOptions {
       de.fosd.typechef.featureexpr.FeatureExprFactory.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory.bdd)
@@ -19,11 +20,11 @@ object main {
       //files.add("/home/murad/intabs/intAbs/src/test/blink1/main.c")
 
 //      systemIncludePath.add("/usr/include/")
-//      systemIncludePath.add("/usr/lib/gcc/x86_64-linux-gnu/7/include/")
-      systemIncludePath.add("/home/murad/typechef/root/usr/include/")
-      systemIncludePath.add("/home/murad/typechef/root/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/")
-      includedHeaders.add("/home/murad/typechef/plat_header_github.h")
-      quoteIncludePath.add("/home/murad/OCamlProjects/ProductLinesDatalogC/test/headers/")
+    //  systemIncludePath.add("/usr/lib/gcc/x86_64-linux-gnu/7/include/")
+      systemIncludePath.add(home + "/TypeChef-LinuxAnalysis2/data/systems/redhat/usr/include/")
+      systemIncludePath.add(home + "/TypeChef-LinuxAnalysis2/data/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/")
+      // includedHeaders.add("/home/murad/typechef/plat_header_github.h")
+      quoteIncludePath.add("../test/headers/")
       includedHeaders.add("./headers/header.h")
       simplifyPresenceConditions = true
       lexPrintToStdout = false

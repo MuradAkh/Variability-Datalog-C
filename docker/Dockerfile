@@ -42,3 +42,7 @@ RUN opam install menhir
 RUN opam install graphlib
 
 ENV PATH="$HOME/.opam/system/bin:${PATH}"
+RUN ln -s /root/.opam/system/bin/dune /usr/bin/dune
+RUN ln -s /root/.opam/system/bin/menhir /usr/bin/menhir
+RUN opam upgrade base
+RUN cd $HOME && git clone https://github.com/ckaestne/TypeChef-LinuxAnalysis2.git
