@@ -1,0 +1,19 @@
+jobs:
+  build:
+    docker:
+      - image: muradakh/ocaml-sbt-npm:0
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install npm dependencies
+          command: npm i
+
+      - run:
+          name: Compile OCaml
+          command: make
+
+      - run:
+          name: Run tests
+          command: npm test
