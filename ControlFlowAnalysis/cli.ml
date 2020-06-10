@@ -3,7 +3,7 @@ open Datalog
 open CfgAnalysis
 open Base
 
-let get_analysis = match (Sys.argv.(1)) with
+let get_analysis = match Sys.argv.(1) with
         | "POINTER" -> pointer_analysis_of_func
         | "STORE_LOAD" -> store_loads_of_func
         | "DOMINATOR" -> dominance

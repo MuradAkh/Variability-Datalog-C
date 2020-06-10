@@ -24,6 +24,7 @@ rule read =
     | initd_paren { INITD_PAREN }
     | "CastExpr(" { CAST_PAREN }
     | "PostfixExpr(" {POSTFIX_PAREN}
+    | "PostfixExpr(" {POSTFIX_PAREN}
     | "PointerPostfixSuffix(" {POINTER_POSTFIX_PAREN}
     | "PointerDerefExpr(" { POINTER_PAREN }
     | "ArrayAccess(" { ARRAY_PAREN }

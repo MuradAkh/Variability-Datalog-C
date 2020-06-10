@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int hello(int a){
 
-}
 
 int main(int argc, char *argv[]) {
   char *x = (char *) malloc(sizeof(char));
@@ -16,6 +14,16 @@ int main(int argc, char *argv[]) {
   char *z = y[1];
   int f = 1;
   int g = (int) f;
+
+  int i;
+
+  while (1 > 0)
+  {
+    g = f;
+    f = g;
+  }
+  
+  
 
   //printf("x: %c, y: %c, z: %c\n", *x, *y, *z);
 

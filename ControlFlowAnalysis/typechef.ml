@@ -68,7 +68,7 @@ let parseCfg (filepath : string) =
 
         Lexing.from_string input 
             |> parse_with_error
-            |> function | Some (a) -> a
+            |> function | Some a -> a
                         | _ -> AtomV("Unparsed")
     in
 

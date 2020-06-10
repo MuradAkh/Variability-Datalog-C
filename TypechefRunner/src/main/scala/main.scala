@@ -24,7 +24,7 @@ object main {
       systemIncludePath.add("/home/murad/typechef/root/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/")
       includedHeaders.add("/home/murad/typechef/plat_header_github.h")
       quoteIncludePath.add("/home/murad/OCamlProjects/ProductLinesDatalogC/test/headers/")
-      includedHeaders.add("/home/murad/typechef/garbage_test/header.h")
+      includedHeaders.add("./headers/header.h")
       simplifyPresenceConditions = true
       lexPrintToStdout = false
       writeDebugInterface = true;

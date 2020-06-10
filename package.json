@@ -1,0 +1,27 @@
+{
+  "name": "cvardatalogextract",
+  "version": "1.0.0",
+  "description": "extracring datalog facts from c programs with variability",
+  "main": "test.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MuradAkh/Variability-Datalog-C.git"
+  },
+  "author": "Murad Akhundov",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/MuradAkh/Variability-Datalog-C/issues"
+  },
+  "homepage": "https://github.com/MuradAkh/Variability-Datalog-C#readme",
+  "dependencies": {
+    "mocha": "6.1.4",
+    "npm": "^6.10.3"
+  }
+
+}

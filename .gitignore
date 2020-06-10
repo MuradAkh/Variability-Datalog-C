@@ -2,4 +2,6 @@
 _temp/
 TypechefRunner/_build/
 TypechefRunner/.idea/
+node_modules/
+
 _build/
