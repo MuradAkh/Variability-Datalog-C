@@ -123,7 +123,7 @@ let parseCfg (filepath : string) =
         }
     in
 
-    let parseEdge nodes (tokens : string sexp_list) : edge = 
+    let parseEdge nodes (tokens : string list) : edge = 
         Edge {
             edge_id =  List.nth_exn tokens 1 ^ List.nth_exn tokens 2;
             a = List.nth_exn tokens 1 |> Map.find_exn nodes;
@@ -215,7 +215,7 @@ let parseCfg (filepath : string) =
     in
     
 
-    let buildCFG (input : string sexp_list)  = 
+    let buildCFG (input : string list)  = 
         let initial_nodes = Map.empty (module String) in
         let initial_edges = Map.empty (module String) in
         let initial_functions = Map.empty (module String) in
