@@ -19,7 +19,7 @@ const testCfg =  async name => {
 
 
 describe('Basic Functionality', function () {
-  this.timeout(30000);
+  this.timeout(90000);
 
   before(async () => {
     // this.test = basicTest(["countCFG"])
@@ -32,7 +32,7 @@ describe('Basic Functionality', function () {
 })
 
 describe('Pointer Analysis', function () {
-    this.timeout(30000);
+    this.timeout(90000);
 
     before(async () => {
       // this.test = basicTest(["countCFG"])
