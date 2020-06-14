@@ -106,18 +106,18 @@ let rec ast_loads = function
   | LoadAst(id) -> [id]
   | other -> do_find_children ast_loads other
 
-let rec ast_stores input_ast = match input_ast |> transform_assigns with 
-  | AssignTast(store, rest) -> store :: ast_stores rest
-  | other -> do_find_children ast_stores other
+let ast_stores input_ast =   
+  let rec ast_stores_helper = function
+    | AssignTast(store, rest) -> store :: ast_stores_helper rest
+    | other -> do_find_children ast_stores_helper other
+  in 
 
-let rec ast_assigns input_ast = 
-  match input_ast 
-      |> transform_casts 
-      |> transform_struct_access 
-      |> transform_pointers
-      |> transform_array_access 
-      |> transform_assigns
-    with 
+  input_ast 
+    |> transform_assigns 
+    |> ast_stores_helper
+
+let  ast_assigns input_ast = 
+   let  rec ast_assigns_helper = function 
       | InitDeclAst([a; _; c]) -> (match c with
         | OtherAst([InitAst([_; LoadAst(ld)])]) -> [(ast_loads a |> List.hd_exn, ld)]
         | _ -> []
@@ -126,32 +126,33 @@ let rec ast_assigns input_ast =
           match rest with 
             | LoadAst(r) -> [(store, r)]
             | _ -> [])
-      | other -> do_find_children ast_assigns other
+      | other -> do_find_children ast_assigns_helper other
+   in 
+
+   input_ast 
+      |> transform_casts 
+      |> transform_struct_access 
+      |> transform_pointers
+      |> transform_array_access 
+      |> transform_assigns
+      |> ast_assigns_helper
 
 
-let rec ast_mallocs input_ast = 
+let ast_mallocs input_ast = 
   let rec transform_mallocs ast = match ast with 
-    | PostfixAst(a, b) -> (match a with
-        | LoadAst(IdAst(x, _)) when (String.equal x "malloc") || (String.equal x "xmalloc") -> 
-            Logger.sLog "transformed malloc";
-            MallocTast(ast)
-        | _ -> Logger.qLog sexp_of_c_ast a; PostfixAst(transform_mallocs a, transform_mallocs b))
-    | ast -> do_transform_children transform_mallocs ast
+    | PostfixAst(LoadAst(IdAst(x, _)), _) when String.is_substring ~substring:"alloc" x -> 
+      (* Logger.sLog @@ "transformed malloc: "  ^ (Sexp.to_string @@ sexp_of_c_ast ast); *)
+      MallocTast(ast)
+    | MallocTast(_) -> Logger.sLog @@ "malloc slef tr: "  ^ (Sexp.to_string @@ sexp_of_c_ast ast); ast
+    | _ast -> do_transform_children transform_mallocs _ast
   in 
 
-  match input_ast 
-      |> transform_casts 
-      |> transform_pointers
-      |> transform_assigns
-      |> transform_mallocs 
-      |> transform_struct_access
-      |> transform_array_access
-    with
+  let rec ast_mallocs_helper = function
     | AssignTast(store, rest) -> (
         match rest with 
         (* DANGER ZONE - MUTABLE VARIABLE *)
           | MallocTast(_) -> [(store, next_id_mutable)]
-          | _ -> ast_mallocs rest
+          | _ -> ast_mallocs_helper rest
         (* END DANGER ZONE *)
     )
     | InitDeclAst([a; _; c]) -> (match c with
@@ -160,7 +161,18 @@ let rec ast_mallocs input_ast =
       | _ -> []
       (* END DANGER ZONE *)
     )
-    | other -> do_find_children ast_mallocs other
+    | other -> do_find_children ast_mallocs_helper other
+  in
+
+  input_ast 
+      |> transform_casts 
+      |> transform_pointers
+      |> transform_assigns
+      |> transform_mallocs 
+      |> transform_struct_access
+      |> transform_array_access
+      |> ast_mallocs_helper
+    
 
   
 let rec ast_loads_stores = function 
