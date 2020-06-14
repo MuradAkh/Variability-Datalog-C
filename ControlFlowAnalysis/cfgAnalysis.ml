@@ -8,7 +8,7 @@ let container_split : string = "___"
 
 (* DANGER ZONE - MUTABLE VARIABLE *)
 let _ID_MALLOC : int ref = ref 0
-let next_id_mutable : int = 
+let next_id_mutable (_ : unit) : int = 
   _ID_MALLOC := !_ID_MALLOC + 1;
   !_ID_MALLOC
 (* END DANGER ZONE *)
@@ -151,13 +151,13 @@ let ast_mallocs input_ast =
     | AssignTast(store, rest) -> (
         match rest with 
         (* DANGER ZONE - MUTABLE VARIABLE *)
-          | MallocTast(_) -> [(store, next_id_mutable)]
+          | MallocTast(_) -> [(store, next_id_mutable ())]
           | _ -> ast_mallocs_helper rest
         (* END DANGER ZONE *)
     )
     | InitDeclAst([a; _; c]) -> (match c with
       (* DANGER ZONE - MUTABLE VARIABLE *)
-      | OtherAst([InitAst([_; MallocTast(_)])]) -> [(ast_loads a |> List.hd_exn, next_id_mutable)]
+      | OtherAst([InitAst([_; MallocTast(_)])]) -> [(ast_loads a |> List.hd_exn, next_id_mutable ())]
       | _ -> []
       (* END DANGER ZONE *)
     )
