@@ -8,9 +8,9 @@ let container_split : string = "___"
 
 (* DANGER ZONE - MUTABLE VARIABLE *)
 let _ID_MALLOC : int ref = ref 0
-let next_id_mutable (_ : unit) : int = 
+let next_id_mutable _: int = 
   _ID_MALLOC := !_ID_MALLOC + 1;
-  !_ID_MALLOC
+   !_ID_MALLOC
 (* END DANGER ZONE *)
 
 

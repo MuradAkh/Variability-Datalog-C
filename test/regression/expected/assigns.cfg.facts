@@ -1,0 +1,3 @@
+assign("g___0main","f___0main") @ .
+assign("a___0main","y___1main") @ .
+assign("y___1main","a___0main") @ .

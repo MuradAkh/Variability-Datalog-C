@@ -59,10 +59,10 @@ let parseCfg (filepath : string) =
         let parse_with_error lexbuf =
             try VarParser.prog VarLexer.read lexbuf with
             | VarLexer.SyntaxError msg ->
-                eprintf  "syntax error: %s on string: %s\n" msg input;
+                Logger.exec @@ lazy (eprintf "syntax error: %s on string: %s\n" msg input);
                 None
             | VarParser.Error ->
-                eprintf  "parser error on\n";
+                Logger.exec @@ lazy (eprintf  "parser error on\n");
                 None 
                 (* Caml.exit (-1) *)
         in
@@ -76,8 +76,8 @@ let parseCfg (filepath : string) =
     let parseAst (exp: string) : c_ast =
         let print_position (lexbuf : Lexing.lexbuf) =
             let pos = lexbuf.lex_curr_p in
-            eprintf "%s:%d:%d" pos.pos_fname
-            pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
+            Logger.exec @@ lazy (eprintf "%s:%d:%d" pos.pos_fname
+            pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1))
         in
 
 
@@ -85,10 +85,10 @@ let parseCfg (filepath : string) =
         let parse_with_error lexbuf =
             try AstParser.prog AstLexer.read lexbuf with
             | AstLexer.SyntaxError msg ->
-                eprintf  "syntax error: %s on string: %s\n" msg exp;
+                Logger.exec @@ lazy (eprintf  "syntax error: %s on string: %s\n" msg exp);
                 None
             | AstParser.Error ->
-                eprintf  "parser error on %s \n" exp;
+                Logger.exec @@ lazy (eprintf  "parser error on %s \n" exp);
                 print_position lexbuf;
                 (* Caml.exit (-1) *)
                 None

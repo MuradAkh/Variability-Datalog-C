@@ -1,0 +1,5 @@
+pointsTo("a___0main","1") @ .
+pointsTo("c___0main","2") @ .
+pointsTo("x___0main","3") @ .
+pointsTo("b___0main","4") @ .
+pointsTo("x___0xp","5") @ .

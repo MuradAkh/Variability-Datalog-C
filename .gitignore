@@ -3,5 +3,12 @@ _temp/
 TypechefRunner/_build/
 TypechefRunner/.idea/
 node_modules/
-
 _build/
+dump/
+./target/
+ControlFlowAnalysis/target/* 
+docker/target/*
+*/hcq.h
+*.ast
+*.csv
+hcq.h 

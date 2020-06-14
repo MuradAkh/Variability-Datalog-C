@@ -23,7 +23,7 @@ object main {
     //  systemIncludePath.add("/usr/lib/gcc/x86_64-linux-gnu/7/include/")
       systemIncludePath.add(home + "/TypeChef-LinuxAnalysis2/data/systems/redhat/usr/include/")
       systemIncludePath.add(home + "/TypeChef-LinuxAnalysis2/data/systems/redhat/usr/lib/gcc/x86_64-redhat-linux/4.4.4/include/")
-      // includedHeaders.add("/home/murad/typechef/plat_header_github.h")
+      includedHeaders.add("./headers/plat_header_github.h")
       quoteIncludePath.add("../test/headers/")
       includedHeaders.add("./headers/header.h")
       simplifyPresenceConditions = true

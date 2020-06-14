@@ -19,3 +19,6 @@ let lqLog transformer target =
     |> transformer 
     |> Base.Sexp.to_string 
     |> Stdio.print_endline
+
+let exec maybe =
+  if do_log then Lazy.force maybe

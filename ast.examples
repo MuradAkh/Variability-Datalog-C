@@ -56,3 +56,52 @@ DeclarationStatement(
                 Some(Initializer(None,Id(y))))))
     )
 )
+
+
+ExprStatement(
+    AssignExpr(
+        PointerDerefExpr(
+            PostfixExpr(
+                Id(new),
+                PointerPostfixSuffix(->,Id(arrival_time))
+            )
+        ),
+        =,
+        PostfixExpr(
+            Id(time),
+            FunctionCall(
+                ExprList(
+                    List(
+                        Opt(
+                            True,
+                            CastExpr(
+                                TypeName(
+                                    List(Opt(True,VoidSpecifier())),
+                                    Some(AtomicAbstractDeclarator(List(Opt(True,Pointer(List()))),List()))),
+                                    Constant(0)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+
+(PostfixAst
+    (LoadAst(IdAst xzalloc 0))
+    (OtherAst(
+        (OtherAst(
+            (OtherAst(
+                (OtherAst(
+                    (AtomicAst True)
+                    (OtherAst(
+                        (OtherAst(
+                            (PostfixAst
+                                (LoadAst(IdAst ptr_to_globals 0))
+                                (ArrayAst(OtherAst((AtomicAst -)(OtherAst((AtomicAst 1))))))
+                            )
+                        ))                    
+                        (OtherAst(
+                            (OtherAst(
+                                (AtomicAst True)
+                                (OtherAst((AtomicAst +)(OtherAst((LoadAst(IdAst ptr_to_globals 0)))))))))))))))))))))
