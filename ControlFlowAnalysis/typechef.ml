@@ -63,7 +63,8 @@ let parseCfg (filepath : string) =
                 None
             | VarParser.Error ->
                 eprintf  "parser error on\n";
-                Caml.exit (-1)
+                None 
+                (* Caml.exit (-1) *)
         in
 
         Lexing.from_string input 
@@ -89,7 +90,8 @@ let parseCfg (filepath : string) =
             | AstParser.Error ->
                 eprintf  "parser error on %s \n" exp;
                 print_position lexbuf;
-                Caml.exit (-1)
+                (* Caml.exit (-1) *)
+                None
         in
 
         Lexing.from_string exp 
