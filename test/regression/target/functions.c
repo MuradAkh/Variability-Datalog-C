@@ -1,8 +1,8 @@
 #include <stdlib.h>
 
-int xp(){
+int *xp(){
     char *x = malloc(sizeof(char));
-    return 1;
+    return NULL;
 }
 
 int main(int argc, char *argv[]) {

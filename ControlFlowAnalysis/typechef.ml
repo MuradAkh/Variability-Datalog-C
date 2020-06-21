@@ -2,10 +2,6 @@ open Base
 open Stdio
 open TypechefTypes
 
-
-
-type world = string * string [@@deriving sexp]
-
 (* type nodeType = 
     | Declaration
     | Statement
@@ -131,6 +127,7 @@ let parseCfg (filepath : string) =
             a = List.nth_exn tokens 1 |> Map.find_exn nodes;
             b = List.nth_exn tokens 2 |> Map.find_exn nodes;
             varEdge =  List.nth_exn tokens 3 |> parseVariability
+
         }
     in
 

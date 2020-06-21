@@ -13,6 +13,7 @@ type datalog_fact =
     | Assign of {variability : varE option; tovar: string; fromvar : string}
     | Cycle of {variability : varE option; id : string}
     | NodeCycle of {variability : varE option; cycleId: string; nodeId: string}
+    | AssignedReturn of {variability : varE option; variable: string; heap : string}
     [@@deriving sexp]
 
 let typed_to_generic = function
@@ -26,6 +27,8 @@ let typed_to_generic = function
       GFact {name= "load"; variability=var; parametrs=[p1;p2]}
   | PointsTo {variability=var; variable=p1; heap=p2} -> 
       GFact {name= "pointsTo"; variability=var; parametrs=[p1;p2]}
+  | AssignedReturn {variability=var; variable=p1; heap=p2} -> 
+      GFact {name= "assigned_func"; variability=var; parametrs=[p1;p2]}
   | Assign {variability=var; tovar=p1; fromvar=p2} -> 
       GFact {name= "assign"; variability=var; parametrs=[p1;p2]}
   | Cycle {variability=var; id=p1} -> 

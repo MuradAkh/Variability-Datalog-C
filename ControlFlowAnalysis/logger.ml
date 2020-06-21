@@ -1,4 +1,5 @@
-let do_log = 
+
+let do_log =
     match Caml.Sys.getenv_opt "DO_LOG" with 
       | Some("TRUE") -> true
       | _ -> false

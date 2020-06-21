@@ -46,3 +46,4 @@ RUN ln -s /root/.opam/system/bin/dune /usr/bin/dune
 RUN ln -s /root/.opam/system/bin/menhir /usr/bin/menhir
 RUN opam upgrade base
 RUN cd $HOME && git clone https://github.com/ckaestne/TypeChef-LinuxAnalysis2.git
+RUN sudo apt-get install ctags
