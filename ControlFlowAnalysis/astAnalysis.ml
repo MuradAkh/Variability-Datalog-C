@@ -52,6 +52,7 @@ let do_find_children f = function
   | AtomicAst(_) -> []
   | LoadAst(_) -> []
   | PointerAst(ast) -> f ast
+  | OptAst(_, ast) -> f ast
   | DeclIdList(asts) -> List.map ~f:f asts |> List.concat
   | AtomicNamedDecl(a1, a2, a3) -> List.map ~f:f [a1; a2; a3] |> List.concat
 
@@ -68,6 +69,7 @@ let do_transform_children f = function
     | PointerDerefAst(ast) -> PointerDerefAst(f ast)
     | PointerPostfixAst(a1, a2) -> PointerPostfixAst(f a1, f a2)
     | PostfixAst(a1, a2) -> PostfixAst(f a1, f a2)
+    | OptAst(v, ast) -> OptAst(v, f ast)
     | ArrayAst(a1) -> ArrayAst(f a1)
     | PointerAst(a) -> PointerAst(f a)
     | LoadAst(a) -> LoadAst(a)
@@ -207,7 +209,7 @@ let rec ast_loads_stores = function
   | AssignTast(store, rest) -> store :: ast_loads_stores rest
   | other -> do_find_children ast_loads_stores other
 
-let rec ast_returns_pointer input_ast =
+let ast_returns_pointer input_ast =
 
   let rec ast_has_decl_list = function
     | DeclIdList(_) -> [()]
@@ -219,16 +221,23 @@ let rec ast_returns_pointer input_ast =
     | other -> do_find_children ast_has_pointer other
   in
 
-  match input_ast with
+  let rec do_find_children_wrapper ast (varstack : varE list) = 
+    do_find_children (fun a -> ast_returns_pointer_helper varstack a) ast
+  and ast_returns_pointer_helper (varstack: varE list)= function
+    | OptAst(var, ast) -> 
+      let new_stack = match var with NoVar(_) -> varstack | _ -> var :: varstack in 
+      ast_returns_pointer_helper new_stack ast
     | AtomicNamedDecl(rtype, LoadAst(IdAst(id, _)), decl) -> 
       if 
         not @@ List.is_empty @@ ast_has_decl_list decl 
         &&
         not @@ List.is_empty @@ ast_has_pointer rtype 
       then 
-        [id]
+        [(id, varstack)]
       else []
-    | other -> do_find_children ast_returns_pointer other
+    | other -> do_find_children_wrapper other varstack
+  in 
+  ast_returns_pointer_helper [] input_ast
 
 
 let ast_finder (n : node) f t= 
@@ -244,7 +253,7 @@ let ast_finder (n : node) f t=
 
 let returns_pointer_of_ast ast = 
   let func_names  = ast_returns_pointer ast in 
-  List.map ~f:(fun n -> ReturnsPointer{variability=None; variable=n}) func_names
+  List.map ~f:(fun (id, varstack) -> ReturnsPointer{variability=Some(AndV(varstack)); variable=id}) func_names
 
 (*AST to daltalog fact tuples*)
 let unary_transformer container = function 

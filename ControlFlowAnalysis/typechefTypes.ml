@@ -27,6 +27,7 @@ type c_ast =
     | ArrayAst of c_ast
     | PointerAst of c_ast
     | PointerDerefAst of c_ast
+    | OptAst of varE * c_ast
     | AtomicNamedDecl of c_ast * c_ast * c_ast 
     | DeclIdList of c_ast list
 

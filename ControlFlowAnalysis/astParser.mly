@@ -119,7 +119,7 @@ value:
     | OTHER_PAREN; o = other; RIGHT_PAREN {TypechefTypes.OtherAst o} 
     | INIT_PAREN; o = other; RIGHT_PAREN {TypechefTypes.InitAst o} 
     /* | OPT_PAREN; OTHER_PAREN; _ = opt; RIGHT_PAREN; COMMA; v = value RIGHT_PAREN {v}  */
-    | OPT_PAREN; _ = opt; COMMA; v = value RIGHT_PAREN {v} 
+    | OPT_PAREN; varib = opt; COMMA; v = value RIGHT_PAREN {TypechefTypes.OptAst(varib, v)} 
     | CHOICE_PAREN; _ = opt; COMMA; v = other RIGHT_PAREN {TypechefTypes.OtherAst(v)} 
     | INITD_PAREN; o = other; RIGHT_PAREN {TypechefTypes.InitDeclAst o} 
     | DECL_ID_LIST_PAREN; o = other; RIGHT_PAREN {TypechefTypes.DeclIdList o} 
