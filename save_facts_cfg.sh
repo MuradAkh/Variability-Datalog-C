@@ -1,6 +1,7 @@
 rm -rf _temp
 mkdir _temp
 mkdir dump
+touch _temp/output.cfg.ast
 cp $2 ./_temp/output.cfg
 echo "--FACTS--"
 node util/process_strings.js 

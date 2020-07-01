@@ -38,6 +38,32 @@ type flowGraph = ControlFlowGraph of {
                                         functions: (string, string, String.comparator_witness) Map.t;
                                      }
 
+let parseAst (exp: string) : c_ast =
+    let print_position (lexbuf : Lexing.lexbuf) =
+        let pos = lexbuf.lex_curr_p in
+        Logger.exec @@ lazy (eprintf "%s:%d:%d" pos.pos_fname
+        pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1))
+    in
+
+    let parse_with_error lexbuf =
+        try AstParser.prog AstLexer.read lexbuf with
+        | AstLexer.SyntaxError msg ->
+            ignore msg;
+        (* (eprintf  "syntax error: %s on string: %s\n" msg exp); *)
+            None
+        | AstParser.Error ->
+            (eprintf  "parser error on");
+            print_position lexbuf;
+            (* Caml.exit (-1) *)
+            None
+    in
+
+    Lexing.from_string exp 
+        |> parse_with_error
+        |> function | Some (a) -> a
+                    | _ -> AtomicAst("Unparsed")
+    
+
 let parseCfg (filepath : string) = 
 
     (* let parseNodeType = function
@@ -69,34 +95,7 @@ let parseCfg (filepath : string) =
                         | _ -> AtomV("Unparsed")
     in
 
-    let parseAst (exp: string) : c_ast =
-        let print_position (lexbuf : Lexing.lexbuf) =
-            let pos = lexbuf.lex_curr_p in
-            Logger.exec @@ lazy (eprintf "%s:%d:%d" pos.pos_fname
-            pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1))
-        in
 
-
-
-        let parse_with_error lexbuf =
-            try AstParser.prog AstLexer.read lexbuf with
-            | AstLexer.SyntaxError msg ->
-                Logger.exec @@ lazy (eprintf  "syntax error: %s on string: %s\n" msg exp);
-                None
-            | AstParser.Error ->
-                Logger.exec @@ lazy (eprintf  "parser error on %s \n" exp);
-                print_position lexbuf;
-                (* Caml.exit (-1) *)
-                None
-        in
-
-        Lexing.from_string exp 
-            |> parse_with_error
-            |> function | Some (a) -> a
-                        | _ -> AtomicAst("Unparsed")
-
-    
-    in
 
     let parseExpression (expr_type: string) (exp: string) : expression = exp
         |> String.substr_replace_all ~pattern:"::" ~with_:"%" 

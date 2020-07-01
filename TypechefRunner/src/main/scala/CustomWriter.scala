@@ -86,7 +86,7 @@ class CustomWriter(fwriter: Writer) extends IOUtilities with CFGWriter {
       (if (specs.map(_.entry).contains(InlineSpecifier())) "function-inline;"
       else if (specs.map(_.entry).contains(StaticSpecifier())) "function-static;"
       else "function;") +
-        o.getPositionFrom.getLine + ";" + decl.getName
+        o.getPositionFrom.getLine + ";" + decl.getName + ";" + decl.toString
     case s: Statement => s"statement;${s.getPositionFrom.getLine};${printLine(s)}::$containerName"
     case e: Expr => s"expression;${e.getPositionFrom.getLine};${printLine(e)}::$containerName"
     case Declaration(_, initDecl) => s"declaration;${o.getPositionFrom.getLine};${initDecl.map(_.entry.getName).mkString(",")}"

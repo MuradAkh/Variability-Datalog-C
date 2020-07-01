@@ -11,3 +11,6 @@ all:
 clean:
 	rm -rf ./_temp
 	cd ControlFlowAnalysis && rm -rf ./_build
+
+test:
+	npm test 

@@ -42,7 +42,7 @@ object main {
 
 
     val ast = Frontend.loadSerializedAST(filename)
-
+    print(ast.toString)
     val cf = new CInterAnalysisFrontend(ast)
 //    val preds = cf.getAllSucc(cf.getTranslationUnit(), CASTEnv.createASTEnv(ast))
 //    val s2 = cf.getAllSucc(preds.head._1, CASTEnv.createASTEnv(ast))
