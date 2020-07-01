@@ -14,6 +14,7 @@ type datalog_fact =
     | Cycle of {variability : varE option; id : string}
     | NodeCycle of {variability : varE option; cycleId: string; nodeId: string}
     | AssignedReturn of {variability : varE option; variable: string; heap : string}
+    | ReturnsPointer of {variability : varE option; variable: string;}
     [@@deriving sexp]
 
 let typed_to_generic = function
@@ -35,6 +36,9 @@ let typed_to_generic = function
       GFact {name= "cycle"; variability=var; parametrs=[p1]}
   | NodeCycle {variability=var; cycleId=p1; nodeId=p2} -> 
       GFact {name= "cycleNode"; variability=var; parametrs=[p1;p2]}
+  | ReturnsPointer {variability=var; variable=p} -> 
+      GFact {name= "returns_pointer"; variability=var; parametrs=[p]}
+  
 
 let brackets_surround target = "(" ^ target ^ ")"
 
@@ -50,7 +54,7 @@ let rec variabilityPrinter = function
   | NoVar()-> ""
 
 let variabilityPrinterOption = function
-  | Some(var: varE) -> variabilityPrinter var
+  | Some(var: varE) -> " @ " ^ variabilityPrinter var
   | None -> ""
 
 let coreFactPrinter (name: string) (params: string list) : string = 
@@ -60,5 +64,5 @@ let coreFactPrinter (name: string) (params: string list) : string =
 
 let factPrinter = function 
   GFact {variability=var; parametrs=p; name=n} -> 
-    coreFactPrinter n p ^ " @ " ^ variabilityPrinterOption var ^ "."
+    coreFactPrinter n p ^ variabilityPrinterOption var ^ "."
   

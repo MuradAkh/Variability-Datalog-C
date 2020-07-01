@@ -4,6 +4,9 @@
 %token ASSIGN_PAREN
 %token CAST_PAREN
 %token ARRAY_PAREN
+%token POINTER_DEREF_PAREN
+%token ATOMIC_NAMED_DECL_PAREN
+%token DECL_ID_LIST_PAREN
 %token POINTER_PAREN
 %token ID_PAREN
 %token OPT_PAREN
@@ -110,6 +113,7 @@ value:
     /* | ASSIGN_PAREN; id = ident; COMMA; EQUALS; COMMA; rest = value; RIGHT_PAREN {TypechefTypes.AssignAst(id, rest)} */
     | ASSIGN_PAREN; o = value; COMMA; EQUALS; COMMA; rest = value; RIGHT_PAREN {TypechefTypes.AssignExprAst(o, rest)}
     | POSTFIX_PAREN; f = value; COMMA; s = value; RIGHT_PAREN {TypechefTypes.PostfixAst(f, s)}
+    | ATOMIC_NAMED_DECL_PAREN; f = value; COMMA; s = value; COMMA; t = value; RIGHT_PAREN {TypechefTypes.AtomicNamedDecl(f, s, t)}
     | POINTER_POSTFIX_PAREN; f = value; COMMA; s = value; RIGHT_PAREN {TypechefTypes.PointerPostfixAst(f, s)}
     | ID_PAREN; atom = ATOMIC; RIGHT_PAREN {TypechefTypes.LoadAst(TypechefTypes.IdAst(atom, 0))} 
     | OTHER_PAREN; o = other; RIGHT_PAREN {TypechefTypes.OtherAst o} 
@@ -118,9 +122,11 @@ value:
     | OPT_PAREN; _ = opt; COMMA; v = value RIGHT_PAREN {v} 
     | CHOICE_PAREN; _ = opt; COMMA; v = other RIGHT_PAREN {TypechefTypes.OtherAst(v)} 
     | INITD_PAREN; o = other; RIGHT_PAREN {TypechefTypes.InitDeclAst o} 
-    | POINTER_PAREN; o = value; RIGHT_PAREN {TypechefTypes.PointerDerefAst o} 
+    | DECL_ID_LIST_PAREN; o = other; RIGHT_PAREN {TypechefTypes.DeclIdList o} 
+    | POINTER_DEREF_PAREN; o = value; RIGHT_PAREN {TypechefTypes.PointerDerefAst o} 
     | CAST_PAREN; o = other; RIGHT_PAREN {TypechefTypes.CastAst o} 
     | ARRAY_PAREN; o = value; RIGHT_PAREN {TypechefTypes.ArrayAst o} 
+    | POINTER_PAREN; o = value; RIGHT_PAREN {TypechefTypes.PointerAst o} 
     | OTHER_PAREN; RIGHT_PAREN {TypechefTypes.OtherAst []} 
     | atom = ATOMIC {TypechefTypes.AtomicAst atom}
 

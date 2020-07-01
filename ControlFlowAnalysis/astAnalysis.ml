@@ -1,6 +1,7 @@
 open Base
 open Typechef
 open TypechefTypes
+open Datalog
 
 let container_split : string = "___"
 
@@ -50,6 +51,9 @@ let do_find_children f = function
   | ArrayAst(a1) -> f a1
   | AtomicAst(_) -> []
   | LoadAst(_) -> []
+  | PointerAst(ast) -> f ast
+  | DeclIdList(asts) -> List.map ~f:f asts |> List.concat
+  | AtomicNamedDecl(a1, a2, a3) -> List.map ~f:f [a1; a2; a3] |> List.concat
 
 let do_transform_children f = function
     | OtherAst(asts) -> OtherAst(List.map ~f:f asts)
@@ -57,12 +61,15 @@ let do_transform_children f = function
     | InitAst(asts) -> InitAst(List.map ~f:f asts)
     | InitDeclAst(asts) -> InitDeclAst(List.map ~f:f asts)
     | CastAst(asts) -> CastAst(List.map ~f:f asts)
+    | DeclIdList(asts) -> DeclIdList(List.map ~f:f asts)
     | MallocTast(ast) -> MallocTast(f ast)
     | AssignExprAst(a1, a2) -> AssignExprAst(f a1, f a2)
+    | AtomicNamedDecl(a1, a2, a3) -> AtomicNamedDecl(f a1, f a2, f a3)
     | PointerDerefAst(ast) -> PointerDerefAst(f ast)
     | PointerPostfixAst(a1, a2) -> PointerPostfixAst(f a1, f a2)
     | PostfixAst(a1, a2) -> PostfixAst(f a1, f a2)
     | ArrayAst(a1) -> ArrayAst(f a1)
+    | PointerAst(a) -> PointerAst(f a)
     | LoadAst(a) -> LoadAst(a)
     | AtomicAst(a) -> AtomicAst(a)
 
@@ -98,7 +105,7 @@ let rec transform_array_access ast = match ast with
   | ast -> do_transform_children transform_array_access ast
   
 let rec transform_mallocs ast = match ast with 
-  | PostfixAst(LoadAst(IdAst(x, _)), _) when String.is_substring ~substring:"alloc" x -> 
+  | PostfixAst(LoadAst(IdAst(x, _)), _) when String.equal "malloc" x -> 
     (* Logger.sLog @@ "transformed malloc: "  ^ (Sexp.to_string @@ sexp_of_c_ast ast); *)
     MallocTast(ast)
   | MallocTast(_) -> Logger.sLog @@ "malloc slef tr: "  ^ (Sexp.to_string @@ sexp_of_c_ast ast); ast
@@ -200,6 +207,28 @@ let rec ast_loads_stores = function
   | AssignTast(store, rest) -> store :: ast_loads_stores rest
   | other -> do_find_children ast_loads_stores other
 
+let rec ast_returns_pointer input_ast =
+
+  let rec ast_has_decl_list = function
+    | DeclIdList(_) -> [()]
+    | other -> do_find_children ast_has_decl_list other
+  in
+
+  let rec ast_has_pointer = function
+    | PointerAst(_) -> [()]
+    | other -> do_find_children ast_has_pointer other
+  in
+
+  match input_ast with
+    | AtomicNamedDecl(rtype, LoadAst(IdAst(id, _)), decl) -> 
+      if 
+        not @@ List.is_empty @@ ast_has_decl_list decl 
+        &&
+        not @@ List.is_empty @@ ast_has_pointer rtype 
+      then 
+        [id]
+      else []
+    | other -> do_find_children ast_returns_pointer other
 
 
 let ast_finder (n : node) f t= 
@@ -212,6 +241,10 @@ let ast_finder (n : node) f t=
   
   List.map ~f:(t container) ids 
 
+
+let returns_pointer_of_ast ast = 
+  let func_names  = ast_returns_pointer ast in 
+  List.map ~f:(fun n -> ReturnsPointer{variability=None; variable=n}) func_names
 
 (*AST to daltalog fact tuples*)
 let unary_transformer container = function 

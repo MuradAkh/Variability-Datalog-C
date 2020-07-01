@@ -52,7 +52,7 @@ let parseAst (exp: string) : c_ast =
         (* (eprintf  "syntax error: %s on string: %s\n" msg exp); *)
             None
         | AstParser.Error ->
-            (eprintf  "parser error on");
+            (eprintf  "parser error on %s\n" exp);
             print_position lexbuf;
             (* Caml.exit (-1) *)
             None

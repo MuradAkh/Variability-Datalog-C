@@ -1,5 +1,4 @@
 open Typechef
-open TypechefTypes
 open Datalog
 open CfgAnalysis
 open Base
@@ -12,7 +11,8 @@ let get_analysis = match Sys.argv.(1) with
         | _ -> pointer_analysis_of_func
 
 let get_analysis_ast = match Sys.argv.(1) with
-        | _ -> fun a -> Stdio.print_endline @@ Sexp.to_string @@ sexp_of_c_ast a
+        | "POINTER" -> AstAnalysis.returns_pointer_of_ast
+        | _ -> fun _ -> []
 
 let plot n = Map.to_alist n      
         |> List.map ~f:(fun (_, b) -> b)
@@ -24,7 +24,9 @@ let do_ast _ =
         |> Stdio.In_channel.read_all
         |> parseAst
         |> get_analysis_ast
-
+        |> List.map ~f:typed_to_generic
+        |> List.map ~f:factPrinter
+        |> List.iter ~f:Stdio.print_endline
 
 
 let do_cfg _ = 
