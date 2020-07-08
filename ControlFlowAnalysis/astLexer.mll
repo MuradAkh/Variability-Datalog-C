@@ -4,12 +4,12 @@
 }
 
 let comma = "," 
-let equals = "=" | "+=" | "-=" | "*=" | "|=" | "&=" | "<<=" | ">>=" | "/="
+let equals = "=" | "+=" | "-=" | "*=" | "|=" | "^=" | "_=" | "&=" | "<<=" | ">>=" | "/="
 let assign_paren = "AssignExpr("
 let initd_paren = "InitDeclaratorI("
 let init_paren = "Initializer("
 let id_paren = "Id("
-let other_paren =  ['a'-'z' 'A'-'Z' '_'] ['~' 'a'-'z' 'A'-'Z' '0'-'9' '_']* "(" 
+let other_paren =  ['a'-'z' 'A'-'Z' '_' '~'] ['~' 'a'-'z' 'A'-'Z' '0'-'9' '_']* "(" 
 let white = [' ' '\t']+
 let atomic = 
 ['|' '!' '&' '/' '~' '0'-'9' 'a'-'z' 'A'-'Z' '_' '+' '<' '>' '"' '-' '<' '>' '*' '.' '\\' '\'' '=' '^' '?' '@' ] 
@@ -31,6 +31,9 @@ rule read =
     | "AtomicNamedDeclarator(" {ATOMIC_NAMED_DECL_PAREN}
     | "Pointer(" { POINTER_PAREN }
     | "DeclParameterDeclList(" { DECL_ID_LIST_PAREN }
+    | "ArrayAccess(" { ARRAY_PAREN }
+    | "NAryExpr(" { NARY_PAREN }
+    | "NArySubExpr(" { NARY_SUB_PAREN }
     | "ArrayAccess(" { ARRAY_PAREN }
     | id_paren { ID_PAREN }
     | init_paren { INIT_PAREN } 

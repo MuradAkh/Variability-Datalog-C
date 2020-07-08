@@ -17,6 +17,10 @@
 %token POSTFIX_PAREN
 %token POINTER_POSTFIX_PAREN
 %token DEF_PAREN
+%token NARY_PAREN
+%token NARY_SUB_PAREN
+
+
 %token CHOICE_PAREN
 %token DEF_AND
 %token DEF_AND_NOT
@@ -66,10 +70,14 @@ ands:
 
 ands_opt:
     | o = opt; RIGHT_PAREN OPT_AND; rest = ands_opt {o :: rest}
+    | o = opt; RIGHT_PAREN DEF_AND; rest = ands {o :: rest}
+    | o = opt; RIGHT_PAREN DEF_AND_NOT; rest = ands_n {o :: rest}
     | o = opt; RIGHT_PAREN {[o]}
 
 ors_opt:
     | o = opt; RIGHT_PAREN OPT_OR; rest = ors_opt {o :: rest}
+    | o = opt; RIGHT_PAREN DEF_OR; rest = ors {o :: rest}
+    | o = opt; RIGHT_PAREN DEF_OR_NOT; rest = ors_n {o :: rest}
     | o = opt; RIGHT_PAREN {[o]}
 
 opt: 
@@ -113,6 +121,8 @@ value:
     /* | ASSIGN_PAREN; id = ident; COMMA; EQUALS; COMMA; rest = value; RIGHT_PAREN {TypechefTypes.AssignAst(id, rest)} */
     | ASSIGN_PAREN; o = value; COMMA; EQUALS; COMMA; rest = value; RIGHT_PAREN {TypechefTypes.AssignExprAst(o, rest)}
     | POSTFIX_PAREN; f = value; COMMA; s = value; RIGHT_PAREN {TypechefTypes.PostfixAst(f, s)}
+    | NARY_PAREN; f = value; COMMA; s = value; RIGHT_PAREN {TypechefTypes.NAryExpr(f, s)}
+    | NARY_SUB_PAREN; f = value; COMMA; s = value; RIGHT_PAREN {TypechefTypes.NArySubExpr(f, s)}
     | ATOMIC_NAMED_DECL_PAREN; f = value; COMMA; s = value; COMMA; t = value; RIGHT_PAREN {TypechefTypes.AtomicNamedDecl(f, s, t)}
     | POINTER_POSTFIX_PAREN; f = value; COMMA; s = value; RIGHT_PAREN {TypechefTypes.PointerPostfixAst(f, s)}
     | ID_PAREN; atom = ATOMIC; RIGHT_PAREN {TypechefTypes.LoadAst(TypechefTypes.IdAst(atom, 0))} 

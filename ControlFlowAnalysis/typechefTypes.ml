@@ -29,6 +29,8 @@ type c_ast =
     | PointerDerefAst of c_ast
     | OptAst of varE * c_ast
     | AtomicNamedDecl of c_ast * c_ast * c_ast 
+    | NAryExpr of c_ast * c_ast
+    | NArySubExpr of c_ast * c_ast
     | DeclIdList of c_ast list
 
     | AssignTast of c_ast_id * c_ast
