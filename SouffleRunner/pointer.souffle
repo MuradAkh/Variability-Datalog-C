@@ -3,13 +3,386 @@
 // .type heap <: symbol
 
 .decl assign( a:symbol, b:symbol )
+.decl assigned_func( a:symbol, b:symbol )
+.decl returns_pointer( a:symbol)
 .decl pointsTo( a:symbol, b:symbol )
 
-
-// -- facts --
-pointsTo("xmain","1") @ GOODBYE.
-assign("ymain","xmain") @ (GOODBYE/\HELLO).
 
 // -- analysis --
 .output pointsTo
 pointsTo(to, heap) :- assign(to, from), pointsTo(from, heap).
+pointsTo(to, funcname) :- assigned_func(to, funcname), returns_pointer(funcname).
+
+
+// -- facts --
+pointsTo("sed_cmd___0add_cmd","1") @ !CONFIG_NOMMU.
+assigned_func("idx___0add_cmd","get_address") @ !CONFIG_NOMMU.
+assigned_func("cmdstr___0add_cmd","skip_whitespace") @ !CONFIG_NOMMU.
+assigned_func("cmdstr___0add_cmd","skip_whitespace") @ !CONFIG_NOMMU.
+assigned_func("cmdstr___0add_cmd","get_address") @ !CONFIG_NOMMU.
+assigned_func("cmdstr___0add_cmd","strspn") @ !CONFIG_NOMMU.
+assigned_func("tp___0add_cmd","xasprintf") @ !CONFIG_NOMMU.
+assigned_func("cmdstr___0add_cmd","strpbrk") @ !CONFIG_NOMMU.
+assign("cmdstr___0add_cmd","idx___0add_cmd") @ !CONFIG_NOMMU.
+assigned_func("eol___0add_cmd_block","strchr") @ !CONFIG_NOMMU.
+assigned_func("eol___0add_cmd_block","strchr") @ !CONFIG_NOMMU.
+assign("sl___0add_cmd_block","eol___0add_cmd_block") @ !CONFIG_NOMMU.
+assign("b___0bb_ascii_isalnum","a___0bb_ascii_isalnum") @ !CONFIG_NOMMU.
+assign("b___0bb_ascii_isxdigit","a___0bb_ascii_isxdigit") @ !CONFIG_NOMMU.
+assign("b___0bb_ascii_tolower","a___0bb_ascii_tolower") @ !CONFIG_NOMMU.
+assign("b___0bb_ascii_toupper","a___0bb_ascii_toupper") @ !CONFIG_NOMMU.
+pointsTo("dest___0copy_parsing_escapes","2") @ !CONFIG_NOMMU.
+assign("current_regex___0do_subst_command","sed_cmd->sub_match___0do_subst_command") @ !CONFIG_NOMMU.
+assign("line___0do_subst_command","line_p___1do_subst_command") @ !CONFIG_NOMMU.
+assign("backref___0do_subst_w_backrefs","replace___0do_subst_w_backrefs") @ !CONFIG_NOMMU.
+assigned_func("next___0get_address","index_of_next_unescaped_regexp_delim") @ !CONFIG_NOMMU.
+assigned_func("temp___0get_address","copy_parsing_escapes") @ !CONFIG_NOMMU.
+assign("pos___0get_address","my_str___0get_address") @ !CONFIG_NOMMU.
+assign("pos___0get_address","next___0get_address") @ !CONFIG_NOMMU.
+assigned_func("ch___0get_next_line","fgetc") @ !CONFIG_NOMMU.
+assigned_func("temp___0get_next_line","bb_get_chunk_from_file") @ !CONFIG_NOMMU.
+assign("gc___0get_next_line","NO_EOL_CHAR___0get_next_line") @ !CONFIG_NOMMU.
+assign("gets_char___1get_next_line","gc___0get_next_line") @ !CONFIG_NOMMU.
+assign("gc___0get_next_line","LAST_IS_NUL___0get_next_line") @ !CONFIG_NOMMU.
+assign("c___0get_next_line","temp___0get_next_line") @ !CONFIG_NOMMU.
+assign("gc___0get_next_line","c___0get_next_line") @ !CONFIG_NOMMU.
+assign("bracket___0index_of_next_unescaped_regexp_delim","idx___0index_of_next_unescaped_regexp_delim") @ !CONFIG_NOMMU.
+assigned_func("cmdstr___0parse_cmd_args","parse_subst_cmd") @ !CONFIG_NOMMU.
+assign("idx___0parse_file_cmd","start___0parse_file_cmd") @ !CONFIG_NOMMU.
+assign("bb__isspace___0parse_file_cmd","filecmdstr___0parse_file_cmd") @ !CONFIG_NOMMU.
+assigned_func("idx___0parse_regex_delim","index_of_next_unescaped_regexp_delim") @ !CONFIG_NOMMU.
+assigned_func("idx___0parse_regex_delim","index_of_next_unescaped_regexp_delim") @ !CONFIG_NOMMU.
+assigned_func("delimiter___0parse_regex_delim","cmdstr_ptr") @ !CONFIG_NOMMU.
+assign("cmdstr_ptr___0parse_regex_delim","idx___0parse_regex_delim") @ !CONFIG_NOMMU.
+assign("cmdstr_ptr___0parse_regex_delim","cmdstr___0parse_regex_delim") @ !CONFIG_NOMMU.
+assigned_func("idx___0parse_subst_cmd","parse_regex_delim") @ !CONFIG_NOMMU.
+assigned_func("idx___0parse_subst_cmd","strlen") @ !CONFIG_NOMMU.
+assigned_func("idx___0parse_subst_cmd","parse_file_cmd") @ !CONFIG_NOMMU.
+assign("bb__isspace___0parse_subst_cmd","substr___0parse_subst_cmd") @ !CONFIG_NOMMU.
+assign("pos___0parse_subst_cmd","substr___0parse_subst_cmd") @ !CONFIG_NOMMU.
+assign("idx___0parse_subst_cmd","pos___0parse_subst_cmd") @ !CONFIG_NOMMU.
+assigned_func("next_line___0process_files","get_next_line") @ !CONFIG_NOMMU.
+assigned_func("next_line___0process_files","get_next_line") @ !CONFIG_NOMMU.
+assign("last_gets_char___0process_files","next_gets_char___0process_files") @ !CONFIG_NOMMU.
+assign("pattern_space___0process_files","next_line___0process_files") @ !CONFIG_NOMMU.
+assign("old_matched___0process_files","sed_cmd->in_match___0process_files") @ !CONFIG_NOMMU.
+assign("lpc___0puts_maybe_newline","last_puts_char___1puts_maybe_newline") @ !CONFIG_NOMMU.
+assign("sed_cmd_next___0sed_free_and_close_stuff","sed_cmd->next___0sed_free_and_close_stuff") @ (!CONFIG_NOMMU /\ CONFIG_FEATURE_CLEAN_UP).
+returns_pointer("__ctype_b_loc") @ (!CONFIG_NOMMU).
+returns_pointer("__ctype_tolower_loc") @ (!CONFIG_NOMMU).
+returns_pointer("__ctype_toupper_loc") @ (!CONFIG_NOMMU).
+returns_pointer("opendir") @ (!CONFIG_NOMMU).
+returns_pointer("fdopendir") @ (!CONFIG_NOMMU).
+returns_pointer("readdir") @ (!CONFIG_NOMMU).
+returns_pointer("readdir64") @ (!CONFIG_NOMMU).
+returns_pointer("__errno_location") @ (!CONFIG_NOMMU).
+returns_pointer("__cmsg_nxthdr") @ (!CONFIG_NOMMU).
+returns_pointer("inet6_option_alloc") @ (!CONFIG_NOMMU).
+returns_pointer("inet6_rth_init") @ (!CONFIG_NOMMU).
+returns_pointer("inet6_rth_getaddr") @ (!CONFIG_NOMMU).
+returns_pointer("getrpcbyname") @ (!CONFIG_NOMMU).
+returns_pointer("getrpcbynumber") @ (!CONFIG_NOMMU).
+returns_pointer("getrpcent") @ (!CONFIG_NOMMU).
+returns_pointer("__h_errno_location") @ (!CONFIG_NOMMU).
+returns_pointer("hstrerror") @ (!CONFIG_NOMMU).
+returns_pointer("gethostent") @ (!CONFIG_NOMMU).
+returns_pointer("gethostbyaddr") @ (!CONFIG_NOMMU).
+returns_pointer("gethostbyname") @ (!CONFIG_NOMMU).
+returns_pointer("gethostbyname2") @ (!CONFIG_NOMMU).
+returns_pointer("getnetent") @ (!CONFIG_NOMMU).
+returns_pointer("getnetbyaddr") @ (!CONFIG_NOMMU).
+returns_pointer("getnetbyname") @ (!CONFIG_NOMMU).
+returns_pointer("getservent") @ (!CONFIG_NOMMU).
+returns_pointer("getservbyname") @ (!CONFIG_NOMMU).
+returns_pointer("getservbyport") @ (!CONFIG_NOMMU).
+returns_pointer("getprotoent") @ (!CONFIG_NOMMU).
+returns_pointer("getprotobyname") @ (!CONFIG_NOMMU).
+returns_pointer("getprotobynumber") @ (!CONFIG_NOMMU).
+returns_pointer("gai_strerror") @ (!CONFIG_NOMMU).
+returns_pointer("tmpfile") @ (!CONFIG_NOMMU).
+returns_pointer("tmpfile64") @ (!CONFIG_NOMMU).
+returns_pointer("tmpnam") @ (!CONFIG_NOMMU).
+returns_pointer("tmpnam_r") @ (!CONFIG_NOMMU).
+returns_pointer("tempnam") @ (!CONFIG_NOMMU).
+returns_pointer("fopen") @ (!CONFIG_NOMMU).
+returns_pointer("freopen") @ (!CONFIG_NOMMU).
+returns_pointer("fopen64") @ (!CONFIG_NOMMU).
+returns_pointer("freopen64") @ (!CONFIG_NOMMU).
+returns_pointer("fdopen") @ (!CONFIG_NOMMU).
+returns_pointer("fopencookie") @ (!CONFIG_NOMMU).
+returns_pointer("fmemopen") @ (!CONFIG_NOMMU).
+returns_pointer("open_memstream") @ (!CONFIG_NOMMU).
+returns_pointer("fgets") @ (!CONFIG_NOMMU).
+returns_pointer("gets") @ (!CONFIG_NOMMU).
+returns_pointer("fgets_unlocked") @ (!CONFIG_NOMMU).
+returns_pointer("popen") @ (!CONFIG_NOMMU).
+returns_pointer("ctermid") @ (!CONFIG_NOMMU).
+returns_pointer("cuserid") @ (!CONFIG_NOMMU).
+returns_pointer("l64a") @ (!CONFIG_NOMMU).
+returns_pointer("initstate") @ (!CONFIG_NOMMU).
+returns_pointer("setstate") @ (!CONFIG_NOMMU).
+returns_pointer("seed48") @ (!CONFIG_NOMMU).
+returns_pointer("malloc") @ (!CONFIG_NOMMU).
+returns_pointer("calloc") @ (!CONFIG_NOMMU).
+returns_pointer("realloc") @ (!CONFIG_NOMMU).
+returns_pointer("alloca") @ (!CONFIG_NOMMU).
+returns_pointer("valloc") @ (!CONFIG_NOMMU).
+returns_pointer("getenv") @ (!CONFIG_NOMMU).
+returns_pointer("__secure_getenv") @ (!CONFIG_NOMMU).
+returns_pointer("mktemp") @ (!CONFIG_NOMMU).
+returns_pointer("mkdtemp") @ (!CONFIG_NOMMU).
+returns_pointer("canonicalize_file_name") @ (!CONFIG_NOMMU).
+returns_pointer("realpath") @ (!CONFIG_NOMMU).
+returns_pointer("bsearch") @ (!CONFIG_NOMMU).
+returns_pointer("ecvt") @ (!CONFIG_NOMMU).
+returns_pointer("fcvt") @ (!CONFIG_NOMMU).
+returns_pointer("gcvt") @ (!CONFIG_NOMMU).
+returns_pointer("qecvt") @ (!CONFIG_NOMMU).
+returns_pointer("qfcvt") @ (!CONFIG_NOMMU).
+returns_pointer("qgcvt") @ (!CONFIG_NOMMU).
+returns_pointer("ptsname") @ (!CONFIG_NOMMU).
+returns_pointer("memcpy") @ (!CONFIG_NOMMU).
+returns_pointer("memmove") @ (!CONFIG_NOMMU).
+returns_pointer("memccpy") @ (!CONFIG_NOMMU).
+returns_pointer("memset") @ (!CONFIG_NOMMU).
+returns_pointer("memchr") @ (!CONFIG_NOMMU).
+returns_pointer("rawmemchr") @ (!CONFIG_NOMMU).
+returns_pointer("memrchr") @ (!CONFIG_NOMMU).
+returns_pointer("strcpy") @ (!CONFIG_NOMMU).
+returns_pointer("strncpy") @ (!CONFIG_NOMMU).
+returns_pointer("strcat") @ (!CONFIG_NOMMU).
+returns_pointer("strncat") @ (!CONFIG_NOMMU).
+returns_pointer("strdup") @ (!CONFIG_NOMMU).
+returns_pointer("strndup") @ (!CONFIG_NOMMU).
+returns_pointer("strchr") @ (!CONFIG_NOMMU).
+returns_pointer("strrchr") @ (!CONFIG_NOMMU).
+returns_pointer("strchrnul") @ (!CONFIG_NOMMU).
+returns_pointer("strpbrk") @ (!CONFIG_NOMMU).
+returns_pointer("strstr") @ (!CONFIG_NOMMU).
+returns_pointer("strtok") @ (!CONFIG_NOMMU).
+returns_pointer("__strtok_r") @ (!CONFIG_NOMMU).
+returns_pointer("strtok_r") @ (!CONFIG_NOMMU).
+returns_pointer("strcasestr") @ (!CONFIG_NOMMU).
+returns_pointer("memmem") @ (!CONFIG_NOMMU).
+returns_pointer("__mempcpy") @ (!CONFIG_NOMMU).
+returns_pointer("mempcpy") @ (!CONFIG_NOMMU).
+returns_pointer("strerror") @ (!CONFIG_NOMMU).
+returns_pointer("strerror_r") @ (!CONFIG_NOMMU).
+returns_pointer("strerror_l") @ (!CONFIG_NOMMU).
+returns_pointer("index") @ (!CONFIG_NOMMU).
+returns_pointer("rindex") @ (!CONFIG_NOMMU).
+returns_pointer("strsep") @ (!CONFIG_NOMMU).
+returns_pointer("strsignal") @ (!CONFIG_NOMMU).
+returns_pointer("__stpcpy") @ (!CONFIG_NOMMU).
+returns_pointer("stpcpy") @ (!CONFIG_NOMMU).
+returns_pointer("__stpncpy") @ (!CONFIG_NOMMU).
+returns_pointer("stpncpy") @ (!CONFIG_NOMMU).
+returns_pointer("strfry") @ (!CONFIG_NOMMU).
+returns_pointer("memfrob") @ (!CONFIG_NOMMU).
+returns_pointer("basename") @ (!CONFIG_NOMMU).
+returns_pointer("mmap") @ (!CONFIG_NOMMU).
+returns_pointer("mmap64") @ (!CONFIG_NOMMU).
+returns_pointer("mremap") @ (!CONFIG_NOMMU).
+returns_pointer("strptime") @ (!CONFIG_NOMMU).
+returns_pointer("strptime_l") @ (!CONFIG_NOMMU).
+returns_pointer("gmtime") @ (!CONFIG_NOMMU).
+returns_pointer("localtime") @ (!CONFIG_NOMMU).
+returns_pointer("gmtime_r") @ (!CONFIG_NOMMU).
+returns_pointer("localtime_r") @ (!CONFIG_NOMMU).
+returns_pointer("asctime") @ (!CONFIG_NOMMU).
+returns_pointer("ctime") @ (!CONFIG_NOMMU).
+returns_pointer("asctime_r") @ (!CONFIG_NOMMU).
+returns_pointer("ctime_r") @ (!CONFIG_NOMMU).
+returns_pointer("getdate") @ (!CONFIG_NOMMU).
+returns_pointer("getcwd") @ (!CONFIG_NOMMU).
+returns_pointer("get_current_dir_name") @ (!CONFIG_NOMMU).
+returns_pointer("getwd") @ (!CONFIG_NOMMU).
+returns_pointer("ttyname") @ (!CONFIG_NOMMU).
+returns_pointer("getlogin") @ (!CONFIG_NOMMU).
+returns_pointer("getusershell") @ (!CONFIG_NOMMU).
+returns_pointer("getpass") @ (!CONFIG_NOMMU).
+returns_pointer("sbrk") @ (!CONFIG_NOMMU).
+returns_pointer("crypt") @ (!CONFIG_NOMMU).
+returns_pointer("ctermid") @ (!CONFIG_NOMMU).
+returns_pointer("setmntent") @ (!CONFIG_NOMMU).
+returns_pointer("getmntent") @ (!CONFIG_NOMMU).
+returns_pointer("getmntent_r") @ (!CONFIG_NOMMU).
+returns_pointer("hasmntopt") @ (!CONFIG_NOMMU).
+returns_pointer("security_class_to_string") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("security_av_perm_to_string") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_policy_root") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_binary_policy_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_failsafe_context_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_removable_context_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_default_context_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_user_contexts_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_file_context_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_file_context_homedir_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_file_context_local_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_file_context_subs_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_homedir_context_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_media_context_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_virtual_domain_context_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_virtual_image_context_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_x_context_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_sepgsql_context_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_contexts_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_securetty_types_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_booleans_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_customizable_types_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_users_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_usersconf_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_translations_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_colors_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_netfilter_context_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("selinux_path") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("context_str") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("context_type_get") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("context_range_get") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("context_role_get") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("context_user_get") @ (((CONFIG_SELINUX /\ !CONFIG_NOMMU) \/ (CONFIG_FEATURE_FIND_CONTEXT /\ !CONFIG_NOMMU /\ !CONFIG_SELINUX))).
+returns_pointer("setlocale") @ ((CONFIG_LOCALE_SUPPORT /\ !CONFIG_NOMMU)).
+returns_pointer("localeconv") @ ((CONFIG_LOCALE_SUPPORT /\ !CONFIG_NOMMU)).
+returns_pointer("getpwent") @ (!CONFIG_NOMMU).
+returns_pointer("fgetpwent") @ (!CONFIG_NOMMU).
+returns_pointer("getpwuid") @ (!CONFIG_NOMMU).
+returns_pointer("getpwnam") @ (!CONFIG_NOMMU).
+returns_pointer("getgrent") @ (!CONFIG_NOMMU).
+returns_pointer("fgetgrent") @ (!CONFIG_NOMMU).
+returns_pointer("getgrgid") @ (!CONFIG_NOMMU).
+returns_pointer("getgrnam") @ (!CONFIG_NOMMU).
+returns_pointer("getspent") @ ((CONFIG_FEATURE_SHADOWPASSWDS /\ !CONFIG_NOMMU /\ !CONFIG_USE_BB_SHADOW)).
+returns_pointer("getspnam") @ ((CONFIG_FEATURE_SHADOWPASSWDS /\ !CONFIG_NOMMU /\ !CONFIG_USE_BB_SHADOW)).
+returns_pointer("sgetspent") @ ((CONFIG_FEATURE_SHADOWPASSWDS /\ !CONFIG_NOMMU /\ !CONFIG_USE_BB_SHADOW)).
+returns_pointer("fgetspent") @ ((CONFIG_FEATURE_SHADOWPASSWDS /\ !CONFIG_NOMMU /\ !CONFIG_USE_BB_SHADOW)).
+returns_pointer("inet_ntoa") @ (!CONFIG_NOMMU).
+returns_pointer("inet_ntop") @ (!CONFIG_NOMMU).
+returns_pointer("inet_neta") @ (!CONFIG_NOMMU).
+returns_pointer("inet_net_ntop") @ (!CONFIG_NOMMU).
+returns_pointer("inet_nsap_ntoa") @ (!CONFIG_NOMMU).
+returns_pointer("dirname") @ (!CONFIG_NOMMU).
+returns_pointer("bb_internal_getpwuid") @ ((CONFIG_USE_BB_PWD_GRP /\ !CONFIG_NOMMU)).
+returns_pointer("bb_internal_getpwnam") @ ((CONFIG_USE_BB_PWD_GRP /\ !CONFIG_NOMMU)).
+returns_pointer("bb_internal_getgrgid") @ ((CONFIG_USE_BB_PWD_GRP /\ !CONFIG_NOMMU)).
+returns_pointer("bb_internal_getgrnam") @ ((CONFIG_USE_BB_PWD_GRP /\ !CONFIG_NOMMU)).
+returns_pointer("skip_whitespace") @ (!CONFIG_NOMMU).
+returns_pointer("skip_non_whitespace") @ (!CONFIG_NOMMU).
+returns_pointer("skip_dev_pfx") @ (!CONFIG_NOMMU).
+returns_pointer("strrstr") @ (!CONFIG_NOMMU).
+returns_pointer("bb_mode_string") @ (!CONFIG_NOMMU).
+returns_pointer("find_block_device") @ (!CONFIG_NOMMU).
+returns_pointer("strcpy_and_process_escape_sequences") @ (!CONFIG_NOMMU).
+returns_pointer("bb_get_last_path_component_strip") @ (!CONFIG_NOMMU).
+returns_pointer("bb_get_last_path_component_nostrip") @ (!CONFIG_NOMMU).
+returns_pointer("xopendir") @ (!CONFIG_NOMMU).
+returns_pointer("warn_opendir") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_realpath") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_readlink") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_readlink_or_warn") @ (!CONFIG_NOMMU).
+returns_pointer("xrealloc_getcwd_or_warn") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_follow_symlinks") @ (!CONFIG_NOMMU).
+returns_pointer("get_sock_lsa") @ (!CONFIG_NOMMU).
+returns_pointer("get_peer_lsa") @ (!CONFIG_NOMMU).
+returns_pointer("host2sockaddr") @ (!CONFIG_NOMMU).
+returns_pointer("xhost2sockaddr") @ (!CONFIG_NOMMU).
+returns_pointer("xdotted2sockaddr") @ (!CONFIG_NOMMU).
+returns_pointer("host_and_af2sockaddr") @ ((CONFIG_FEATURE_IPV6 /\ !CONFIG_NOMMU)).
+returns_pointer("xhost_and_af2sockaddr") @ ((CONFIG_FEATURE_IPV6 /\ !CONFIG_NOMMU)).
+returns_pointer("xmalloc_sockaddr2host") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_sockaddr2host_noport") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_sockaddr2hostonly_noport") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_sockaddr2dotted") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_sockaddr2dotted_noport") @ (!CONFIG_NOMMU).
+returns_pointer("xgethostbyname") @ (!CONFIG_NOMMU).
+returns_pointer("xstrdup") @ (!CONFIG_NOMMU).
+returns_pointer("xstrndup") @ (!CONFIG_NOMMU).
+returns_pointer("safe_strncpy") @ (!CONFIG_NOMMU).
+returns_pointer("strncpy_IFNAMSIZ") @ (!CONFIG_NOMMU).
+returns_pointer("xasprintf") @ (!CONFIG_NOMMU).
+returns_pointer("printable_string") @ (!CONFIG_NOMMU).
+returns_pointer("malloc_or_warn") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc") @ (!CONFIG_NOMMU).
+returns_pointer("xzalloc") @ (!CONFIG_NOMMU).
+returns_pointer("xrealloc") @ (!CONFIG_NOMMU).
+returns_pointer("xrealloc_vector_helper") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_reads") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_read") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_open_read_close") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_open_zipped_read_close") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_xopen_read_close") @ (!CONFIG_NOMMU).
+returns_pointer("bb_get_chunk_from_file") @ (!CONFIG_NOMMU).
+returns_pointer("bb_get_chunk_with_continuation") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_fgets_str") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_fgets_str_len") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_fgetline_str") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_fgets") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_fgetline") @ (!CONFIG_NOMMU).
+returns_pointer("xfopen") @ (!CONFIG_NOMMU).
+returns_pointer("fopen_or_warn") @ (!CONFIG_NOMMU).
+returns_pointer("xfopen_stdin") @ (!CONFIG_NOMMU).
+returns_pointer("fopen_or_warn_stdin") @ (!CONFIG_NOMMU).
+returns_pointer("fopen_for_read") @ (!CONFIG_NOMMU).
+returns_pointer("xfopen_for_read") @ (!CONFIG_NOMMU).
+returns_pointer("fopen_for_write") @ (!CONFIG_NOMMU).
+returns_pointer("xfopen_for_write") @ (!CONFIG_NOMMU).
+returns_pointer("xfdopen_for_read") @ (!CONFIG_NOMMU).
+returns_pointer("xfdopen_for_write") @ (!CONFIG_NOMMU).
+returns_pointer("safe_gethostname") @ (!CONFIG_NOMMU).
+returns_pointer("safe_getdomainname") @ (!CONFIG_NOMMU).
+returns_pointer("str_tolower") @ (!CONFIG_NOMMU).
+returns_pointer("utoa") @ (!CONFIG_NOMMU).
+returns_pointer("itoa") @ (!CONFIG_NOMMU).
+returns_pointer("utoa_to_buf") @ (!CONFIG_NOMMU).
+returns_pointer("itoa_to_buf") @ (!CONFIG_NOMMU).
+returns_pointer("make_human_readable_str") @ (!CONFIG_NOMMU).
+returns_pointer("bin2hex") @ (!CONFIG_NOMMU).
+returns_pointer("hex2bin") @ (!CONFIG_NOMMU).
+returns_pointer("xgetpwnam") @ (!CONFIG_NOMMU).
+returns_pointer("xgetgrnam") @ (!CONFIG_NOMMU).
+returns_pointer("xgetpwuid") @ (!CONFIG_NOMMU).
+returns_pointer("xgetgrgid") @ (!CONFIG_NOMMU).
+returns_pointer("xuid2uname") @ (!CONFIG_NOMMU).
+returns_pointer("xgid2group") @ (!CONFIG_NOMMU).
+returns_pointer("uid2uname") @ (!CONFIG_NOMMU).
+returns_pointer("gid2group") @ (!CONFIG_NOMMU).
+returns_pointer("uid2uname_utoa") @ (!CONFIG_NOMMU).
+returns_pointer("gid2group_utoa") @ (!CONFIG_NOMMU).
+returns_pointer("get_cached_username") @ (!CONFIG_NOMMU).
+returns_pointer("get_cached_groupname") @ (!CONFIG_NOMMU).
+returns_pointer("find_execable") @ (!CONFIG_NOMMU).
+returns_pointer("single_argv") @ (!CONFIG_NOMMU).
+returns_pointer("llist_pop") @ (!CONFIG_NOMMU).
+returns_pointer("llist_rev") @ (!CONFIG_NOMMU).
+returns_pointer("llist_find_str") @ (!CONFIG_NOMMU).
+returns_pointer("get_aftype") @ (!CONFIG_NOMMU).
+returns_pointer("get_hwtype") @ (!CONFIG_NOMMU).
+returns_pointer("get_hwntype") @ (!CONFIG_NOMMU).
+returns_pointer("find_mount_point") @ (!CONFIG_NOMMU).
+returns_pointer("query_loop") @ (!CONFIG_NOMMU).
+returns_pointer("bb_ask_stdin") @ (!CONFIG_NOMMU).
+returns_pointer("bb_ask") @ (!CONFIG_NOMMU).
+returns_pointer("config_open") @ (!CONFIG_NOMMU).
+returns_pointer("config_open2") @ (!CONFIG_NOMMU).
+returns_pointer("concat_path_file") @ (!CONFIG_NOMMU).
+returns_pointer("concat_subpath_file") @ (!CONFIG_NOMMU).
+returns_pointer("bb_basename") @ (!CONFIG_NOMMU).
+returns_pointer("last_char_is") @ (!CONFIG_NOMMU).
+returns_pointer("get_signame") @ (!CONFIG_NOMMU).
+returns_pointer("bb_simplify_path") @ (!CONFIG_NOMMU).
+returns_pointer("bb_simplify_abs_path_inplace") @ (!CONFIG_NOMMU).
+returns_pointer("pw_encrypt") @ (!CONFIG_USE_BB_CRYPT /\ !CONFIG_NOMMU).
+returns_pointer("pw_encrypt") @ (CONFIG_USE_BB_CRYPT /\ !CONFIG_NOMMU).
+returns_pointer("nth_string") @ (!CONFIG_NOMMU).
+returns_pointer("xmalloc_ttyname") @ (!CONFIG_NOMMU).
+returns_pointer("is_in_ino_dev_hashtable") @ (!CONFIG_NOMMU).
+returns_pointer("new_line_input_t") @ (!CONFIG_NOMMU).
+returns_pointer("procps_scan") @ (!CONFIG_NOMMU).
+returns_pointer("find_pid_by_name") @ (!CONFIG_NOMMU).
+returns_pointer("pidlist_reverse") @ (!CONFIG_NOMMU).
+returns_pointer("crc32_filltable") @ (!CONFIG_NOMMU).
+returns_pointer("re_compile_pattern") @ (!CONFIG_NOMMU).
+returns_pointer("regcomp_or_errmsg") @ (!CONFIG_NOMMU).
+returns_pointer("copy_parsing_escapes") @ (!CONFIG_NOMMU).
+returns_pointer("parse_cmd_args") @ (!CONFIG_NOMMU).
+returns_pointer("branch_to") @ (!CONFIG_NOMMU).
+returns_pointer("get_next_line") @ (!CONFIG_NOMMU).

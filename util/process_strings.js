@@ -6,6 +6,7 @@ fs.writeFileSync(
     fs.readFileSync('_temp/output.cfg', 'utf-8')
     .replace(/\\\"/g, "")
     .replace(/%/g, "_") 
+    .replace(/\'\"\'/g, "\'A\'") 
     .replace(regex, "\"\"")
     .replace(/\'.*?\'/g, "\'A\'") 
 ); 
@@ -17,6 +18,7 @@ fs.writeFileSync(
     .replace(/\\\"/g, "")
     .replace(/\\\'/g, "")
     .replace(/%/g, "_") 
+    .replace(/\'\"\'/g, "\'A\'") 
     .replace(regex, "\"\"")
     .replace(/\'.\'/g, "\'A\'") 
 ); 
