@@ -39,7 +39,6 @@ archival_rpm2cpio.cfg
 archival_rpm.cfg
 archival_tar.cfg
 archival_unzip.cfg
-busbybox.cfg
 console-tools_chvt.cfg
 console-tools_clear.cfg
 console-tools_deallocvt.cfg
