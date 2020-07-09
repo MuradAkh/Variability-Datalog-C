@@ -12,7 +12,8 @@ type datalog_fact =
     | PointsTo of {variability : varE option; variable: string; heap : string}
     | Assign of {variability : varE option; tovar: string; fromvar : string}
     | Cycle of {variability : varE option; id : string}
-    | NodeCycle of {variability : varE option; cycleId: string; nodeId: string}
+    | NodeCycle of {variability : varE option; cycleId: string; nodeAId: string; nodeBId: string}
+    | Edge of {variability : varE option; nodeAId: string; nodeBId: string}
     | AssignedReturn of {variability : varE option; variable: string; heap : string}
     | ReturnsPointer of {variability : varE option; variable: string;}
     [@@deriving sexp]
@@ -34,8 +35,10 @@ let typed_to_generic = function
       GFact {name= "assign"; variability=var; parametrs=[p1;p2]}
   | Cycle {variability=var; id=p1} -> 
       GFact {name= "cycle"; variability=var; parametrs=[p1]}
-  | NodeCycle {variability=var; cycleId=p1; nodeId=p2} -> 
-      GFact {name= "cycleNode"; variability=var; parametrs=[p1;p2]}
+  | NodeCycle {variability=var; cycleId=p1; nodeAId=p2; nodeBId=p3} -> 
+      GFact {name= "cycleNode"; variability=var; parametrs=[p1;p2;p3]}
+  | Edge {variability=var; nodeAId=p2; nodeBId=p3} -> 
+      GFact {name= "edge"; variability=var; parametrs=[p2;p3]}
   | ReturnsPointer {variability=var; variable=p} -> 
       GFact {name= "returns_pointer"; variability=var; parametrs=[p]}
   

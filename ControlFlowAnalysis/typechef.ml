@@ -24,6 +24,7 @@ type edge = Edge of {edge_id: string; a: node; b: node; varEdge: varE;}  [@@deri
 and node = Node of {nodeID: string; succs: edge list; preds: edge list; varNode: varE;  nodeValue: expression}  [@@deriving sexp, compare]
 
 let id_of_node = function | Node{nodeID = id; _} -> id
+let var_of_node = function | Node{varNode = v; _} -> v
 
 type cfg = (string, node, String.comparator_witness) Map.t *
            (string, edge list, String.comparator_witness) Map.t

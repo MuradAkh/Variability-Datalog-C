@@ -99,6 +99,16 @@ let store_loads_of_func (func: node) : datalog_fact list =
   |> List.map ~f:store_loads_of_node
   |> List.concat
 
+let edges_of_func (func: node) : datalog_fact list = 
+  reachable succs_node func 
+  |> List.map ~f:(function | Node{succs=ed; _} -> ed)
+  |> List.concat 
+  |> List.map 
+    ~f:(function | Edge{a=a; b=b; varEdge=var; _} 
+      -> Datalog.Edge{variability=Some(var); nodeAId=id_of_node a; nodeBId= id_of_node b}
+    )
+
+
 let pointer_analysis_of_func (func: node) : datalog_fact list = 
   reachable succs_node func
   |> fun a -> 
@@ -125,11 +135,13 @@ let cycles (func: node) : datalog_fact list =
     (* END DANGER - MUTATION *)
 
     let make_nodecycles acc = function 
-      | Node{nodeID=id; varNode=var; _} ->
-      NodeCycle{variability=Some(var); nodeId=id; cycleId= Int.to_string !counter} :: acc
+      | (Node{nodeID=id1; varNode=var1; _}, Node{nodeID=id2; varNode=var2; _}) ->
+      NodeCycle{variability=Some(AndV([var1; var2])); nodeAId=id1; nodeBId=id2; cycleId= Int.to_string !counter} :: acc
     in
 
-    List.fold ~init:[] ~f:make_nodecycles cycle 
+    let shifted = List.tl_exn cycle @ [List.hd_exn cycle] in 
+    
+    (List.fold ~init:[] ~f:make_nodecycles @@ List.zip_exn cycle shifted)  
     @ Cycle {
       variability=Some(AndV(List.map ~f:(function Node{varNode=v; _} -> v) cycle)); 
       id= Int.to_string !counter
@@ -145,7 +157,7 @@ let generic_dom ?g_pred ?g_succ (goal: node) (nexts : node -> node list) : datal
   let nodes = reachable nexts goal in
   let graph = make_graph nodes in 
   let doms = dominaors graph goal nodes ?g_pred ?g_succ in 
-  List.map ~f:(fun (a, b) -> Dominator {variability=None; doms=(id_of_node a); domed=(id_of_node b)}) doms
+  List.map ~f:(fun (a, b) -> Dominator {variability=Some(AndV([var_of_node a; var_of_node b])); doms=(id_of_node a); domed=(id_of_node b)}) doms
 
 let dominance (func : node) : datalog_fact list =
   generic_dom func succs_node
