@@ -57,7 +57,10 @@ let rec variabilityPrinter = function
   | NoVar()-> ""
 
 let variabilityPrinterOption = function
-  | Some(var: varE) -> " @ " ^ variabilityPrinter var
+  | Some(var: varE) -> begin
+    match var with 
+    | NoVar() -> ""
+    | _ -> " @ " ^ variabilityPrinter var end
   | None -> ""
 
 let coreFactPrinter (name: string) (params: string list) : string = 

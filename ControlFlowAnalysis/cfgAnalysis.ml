@@ -5,6 +5,13 @@ open Base
 open GraphTools
 open AstAnalysis
 
+let var_of_two = function
+      | (NoVar (), NoVar ()) -> None 
+      | (v, NoVar ()) -> Some(v)
+      | (NoVar (), v) -> Some(v)
+      | (v1, v2) -> Some(AndV([v1; v2]))
+    
+
 let succs_node (n : node) = 
   let Node {succs = edges; _} = n in
   List.map ~f:(function | Edge {b = s; _} -> s ) edges 
@@ -136,14 +143,20 @@ let cycles (func: node) : datalog_fact list =
 
     let make_nodecycles acc = function 
       | (Node{nodeID=id1; varNode=var1; _}, Node{nodeID=id2; varNode=var2; _}) ->
-      NodeCycle{variability=Some(AndV([var1; var2])); nodeAId=id1; nodeBId=id2; cycleId= Int.to_string !counter} :: acc
+      NodeCycle{variability=var_of_two (var1, var2); nodeAId=id1; nodeBId=id2; cycleId= Int.to_string !counter} :: acc
     in
 
     let shifted = List.tl_exn cycle @ [List.hd_exn cycle] in 
     
+    let cycle_vars = 
+      match List.map ~f:(function Node{varNode=v; _} -> v) cycle |> List.filter ~f:(function | NoVar () -> false | _ -> true) with 
+      | [] -> None 
+      | [a] -> Some(a)
+      | a -> Some(AndV(a))
+    in
     (List.fold ~init:[] ~f:make_nodecycles @@ List.zip_exn cycle shifted)  
     @ Cycle {
-      variability=Some(AndV(List.map ~f:(function Node{varNode=v; _} -> v) cycle)); 
+      variability=cycle_vars; 
       id= Int.to_string !counter
     }
     :: facts
@@ -157,7 +170,9 @@ let generic_dom ?g_pred ?g_succ (goal: node) (nexts : node -> node list) : datal
   let nodes = reachable nexts goal in
   let graph = make_graph nodes in 
   let doms = dominaors graph goal nodes ?g_pred ?g_succ in 
-  List.map ~f:(fun (a, b) -> Dominator {variability=Some(AndV([var_of_node a; var_of_node b])); doms=(id_of_node a); domed=(id_of_node b)}) doms
+  List.map ~f:(fun (a, b) -> 
+      Dominator {variability=var_of_two (var_of_node a, var_of_node b); doms=(id_of_node a); domed=(id_of_node b)}
+  ) doms
 
 let dominance (func : node) : datalog_fact list =
   generic_dom func succs_node

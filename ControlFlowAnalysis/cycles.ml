@@ -122,7 +122,10 @@ let find_all_cycles_johnson g =
     (* Find the strongly connected component in the subgraph
      * that contains the least node according to the ordering *)
     let module Comp = Graph.Components.Make(G) in
-    let scc =  Comp.scc_list subgraph in
+    let scc = Comp.scc_list subgraph in
+
+    if List.length scc = 0 then result else 
+    
     let minnode = SV.min_elt subset in
     let mincomp = List.find (fun (l :G.V.t list) -> List.mem minnode (to_ints l)) scc in
 

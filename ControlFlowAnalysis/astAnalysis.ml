@@ -263,7 +263,10 @@ let ast_finder (n : node) f t=
 
 let returns_pointer_of_ast ast = 
   let func_names  = ast_returns_pointer ast in 
-  List.map ~f:(fun (id, varstack) -> ReturnsPointer{variability=Some(AndV(varstack)); variable=id}) func_names
+  List.map ~f:(fun (id, varstack) -> (match varstack with 
+    | [] -> ReturnsPointer{variability=None; variable=id}
+    | _ -> ReturnsPointer{variability=Some(AndV(varstack)); variable=id})
+  ) func_names
 
 (*AST to daltalog fact tuples*)
 let unary_transformer container = function 
