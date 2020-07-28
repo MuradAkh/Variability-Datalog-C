@@ -12,5 +12,9 @@ clean:
 	rm -rf ./_temp
 	cd ControlFlowAnalysis && rm -rf ./_build
 
+clean-dump:
+	rm -rf ./dump
+
+
 test:
 	npm test 

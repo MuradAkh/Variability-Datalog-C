@@ -1,4 +1,9 @@
+applets_applets.cfg
+archival_ar.cfg
+archival_bbunzip.cfg
+archival_bzip2.cfg
 archival_cpio.cfg
+archival_dpkg.cfg
 archival_dpkg_deb.cfg
 archival_gzip.cfg
 archival_libarchive_data_align.cfg
@@ -50,7 +55,6 @@ console-tools_loadkmap.cfg
 console-tools_openvt.cfg
 console-tools_reset.cfg
 console-tools_resize.cfg
-console-tools_setconsole.cfg
 console-tools_setkeycodes.cfg
 console-tools_setlogcons.cfg
 console-tools_showkey.cfg
@@ -67,15 +71,12 @@ coreutils_comm.cfg
 coreutils_cp.cfg
 coreutils_cut.cfg
 coreutils_date.cfg
-coreutils_dd.cfg
 coreutils_df.cfg
 coreutils_dirname.cfg
 coreutils_dos2unix.cfg
-coreutils_du.cfg
 coreutils_echo.cfg
 coreutils_env.cfg
 coreutils_expand.cfg
-coreutils_expr.cfg
 coreutils_false.cfg
 coreutils_fold.cfg
 coreutils_fsync.cfg
@@ -108,12 +109,10 @@ coreutils_seq.cfg
 coreutils_sleep.cfg
 coreutils_sort.cfg
 coreutils_split.cfg
-coreutils_stat.cfg
 coreutils_stty.cfg
 coreutils_sum.cfg
 coreutils_sync.cfg
 coreutils_tac.cfg
-coreutils_tail.cfg
 coreutils_tee.cfg
 coreutils_test.cfg
 coreutils_test_ptr_hack.cfg
@@ -132,7 +131,6 @@ coreutils_who.cfg
 coreutils_yes.cfg
 debianutils_mktemp.cfg
 debianutils_pipe_progress.cfg
-debianutils_run_parts.cfg
 debianutils_start_stop_daemon.cfg
 debianutils_which.cfg
 e2fsprogs_chattr.cfg
@@ -142,12 +140,10 @@ e2fsprogs_lsattr.cfg
 e2fsprogs_tune2fs.cfg
 editors_awk.cfg
 editors_cmp.cfg
-editors_diff.cfg
 editors_ed.cfg
 editors_patch.cfg
 editors_sed.cfg
 editors_vi.cfg
-findutils_find.cfg
 findutils_grep.cfg
 findutils_xargs.cfg
 init_bootchartd.cfg
@@ -168,7 +164,6 @@ libbb_chomp.cfg
 libbb_compare_string_array.cfg
 libbb_concat_path_file.cfg
 libbb_concat_subpath_file.cfg
-libbb_copyfd.cfg
 libbb_copy_file.cfg
 libbb_correct_password.cfg
 libbb_crc32.cfg
@@ -182,7 +177,6 @@ libbb_execable.cfg
 libbb_fclose_nonstdin.cfg
 libbb_fflush_stdout_and_exit.cfg
 libbb_fgets_str.cfg
-libbb_find_mount_point.cfg
 libbb_find_pid_by_name.cfg
 libbb_find_root_device.cfg
 libbb_full_write.cfg
@@ -295,7 +289,6 @@ mailutils_sendmail.cfg
 miscutils_adjtimex.cfg
 miscutils_bbconfig.cfg
 miscutils_beep.cfg
-miscutils_chat.cfg
 miscutils_chrt.cfg
 miscutils_conspy.cfg
 miscutils_crond.cfg
@@ -304,7 +297,6 @@ miscutils_dc.cfg
 miscutils_devfsd.cfg
 miscutils_devmem.cfg
 miscutils_eject.cfg
-miscutils_fbsplash.cfg
 miscutils_flashcp.cfg
 miscutils_flash_eraseall.cfg
 miscutils_flash_lock_unlock.cfg
@@ -341,11 +333,8 @@ modutils_lsmod.cfg
 modutils_modinfo.cfg
 modutils_modprobe.cfg
 modutils_modprobe-small.cfg
-modutils_modutils-24.cfg
-modutils_modutils.cfg
 modutils_rmmod.cfg
 networking_arp.cfg
-networking_arping.cfg
 networking_brctl.cfg
 networking_dnsd.cfg
 networking_ether-wake.cfg
@@ -356,18 +345,13 @@ networking_httpd.cfg
 networking_ifconfig.cfg
 networking_ifenslave.cfg
 networking_ifplugd.cfg
-networking_ifupdown.cfg
 networking_inetd.cfg
 networking_interface.cfg
-networking_ipcalc.cfg
 networking_ip.cfg
 networking_isrv.cfg
 networking_isrv_identd.cfg
-networking_libiproute_ipaddress.cfg
 networking_libiproute_iplink.cfg
 networking_libiproute_ip_parse_common_args.cfg
-networking_libiproute_iproute.cfg
-networking_libiproute_iprule.cfg
 networking_libiproute_iptunnel.cfg
 networking_libiproute_libnetlink.cfg
 networking_libiproute_ll_addr.cfg
@@ -382,12 +366,10 @@ networking_nbd-client.cfg
 networking_nc.cfg
 networking_netstat.cfg
 networking_nslookup.cfg
-networking_ntpd.cfg
 networking_ping.cfg
 networking_pscan.cfg
 networking_route.cfg
 networking_slattach.cfg
-networking_tcpudp.cfg
 networking_tcpudp_perhost.cfg
 networking_telnet.cfg
 networking_telnetd.cfg
@@ -408,7 +390,6 @@ networking_udhcp_signalpipe.cfg
 networking_udhcp_socket.cfg
 networking_udhcp_static_leases.cfg
 networking_vconfig.cfg
-networking_wget.cfg
 networking_zcip.cfg
 printutils_lpd.cfg
 printutils_lpr.cfg
@@ -443,7 +424,6 @@ selinux_runcon.cfg
 selinux_selinuxenabled.cfg
 selinux_sestatus.cfg
 selinux_setenforce.cfg
-selinux_setfiles.cfg
 selinux_setsebool.cfg
 shell_ash.cfg
 shell_ash_ptr_hack.cfg
@@ -488,7 +468,6 @@ util-linux_rdate.cfg
 util-linux_rdev.cfg
 util-linux_readprofile.cfg
 util-linux_rev.cfg
-util-linux_rtcwake.cfg
 util-linux_script.cfg
 util-linux_scriptreplay.cfg
 util-linux_setarch.cfg
