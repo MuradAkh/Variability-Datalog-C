@@ -32,6 +32,7 @@ let assigns_of_node (target : node): datalog_fact list =
   
   List.map ~f:make_assign assigns
 
+
 let mallocs_of_node (target : node): datalog_fact list =
   let Node {varNode = varb; _} = target in
   let mallocs = node_mallocs target in 
@@ -53,7 +54,7 @@ let returns_of_node (target : node): datalog_fact list =
 
 let store_loads_of_node (target : node): datalog_fact list =
   let id = id_of_node target in
-  let Node {varNode = varb; _} = target in
+  let Node {varNode = varb; succs=succs; preds=preds; _} = target in
   let loads = node_loads target in 
   let stores = node_stores target in 
 
@@ -63,6 +64,30 @@ let store_loads_of_node (target : node): datalog_fact list =
   
   let make_load (fact : string) (id2: int) = 
     Load {variable = fact; variability = Some(varb); node= id ^ ":" ^ (Int.to_string id2)}
+  in
+
+  let make_inner_edge (id2: int) = 
+    Edge {
+      variability = Some(varb); 
+      nodeAId= id ^ ":" ^ (Int.to_string id2); 
+      nodeBId= id ^ ":" ^ (Int.to_string @@ id2 + 1)
+      }
+  in
+
+  let make_outer_edge_succs (e: Typechef.edge) = 
+    Edge {
+      variability = Some(varb); 
+      nodeAId= id;
+      nodeBId= (match e with Typechef.Edge{b=b; _} -> id_of_node b)
+    }
+  in
+
+  let make_outer_edge_preds (e: Typechef.edge) = 
+    Edge {
+      variability = Some(varb); 
+      nodeAId= (match e with Typechef.Edge{a=a; _} -> id_of_node a);
+      nodeBId= id;
+    }
   in
 
   
@@ -80,25 +105,17 @@ let store_loads_of_node (target : node): datalog_fact list =
       stores 
   in
 
- 
-  (* Generate Dominator relations for subnodes *)
-  let rec make_doms = function 
-    | 0 -> sl_facts
-    | n -> 
-
-    let rec make_dom = function 
-      | 0 ->  make_doms @@ n -1
-      | m -> 
-        Dominator {variability=Some(varb); doms= id ^ ":" ^ Int.to_string n; domed=id ^ ":" ^ Int.to_string n} 
-          ::
-        (make_dom @@ m - 1)
-    in
-
-    make_dom @@ n - 1
+  let (sl_edge_facts, _) = 
+    List.fold_left 
+      ~f:(fun (l, n) _ -> ((make_inner_edge n) :: l, n - 1)) 
+      ~init:(sl_facts, (node_subnodes_count target) - 1) 
+      (stores @ loads)
   in
 
 
-  make_doms @@ node_subnodes_count target
+  (List.map ~f:make_outer_edge_preds preds) @
+  (List.map ~f:make_outer_edge_succs succs) @
+  sl_edge_facts
 
 
 let store_loads_of_func (func: node) : datalog_fact list = 

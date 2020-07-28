@@ -59,25 +59,25 @@ let do_find_children f = function
   | NArySubExpr(a1, a2) -> List.map ~f:f [a1; a2] |> List.concat
 
 let do_transform_children f = function
-    | OtherAst(asts) -> OtherAst(List.map ~f:f asts)
-    | AssignTast(t, g) -> AssignTast(t, f g)
-    | InitAst(asts) -> InitAst(List.map ~f:f asts)
-    | InitDeclAst(asts) -> InitDeclAst(List.map ~f:f asts)
-    | CastAst(asts) -> CastAst(List.map ~f:f asts)
-    | DeclIdList(asts) -> DeclIdList(List.map ~f:f asts)
-    | MallocTast(ast) -> MallocTast(f ast)
-    | AssignExprAst(a1, a2) -> AssignExprAst(f a1, f a2)
-    | AtomicNamedDecl(a1, a2, a3) -> AtomicNamedDecl(f a1, f a2, f a3)
-    | PointerDerefAst(ast) -> PointerDerefAst(f ast)
-    | PointerPostfixAst(a1, a2) -> PointerPostfixAst(f a1, f a2)
-    | PostfixAst(a1, a2) -> PostfixAst(f a1, f a2)
-    | OptAst(v, ast) -> OptAst(v, f ast)
-    | ArrayAst(a1) -> ArrayAst(f a1)
-    | PointerAst(a) -> PointerAst(f a)
-    | NAryExpr(a1, a2) ->  NAryExpr(f a1, f a2)
-    | NArySubExpr(a1, a2) ->  NArySubExpr(f a1, f a2)
-    | LoadAst(a) -> LoadAst(a)
-    | AtomicAst(a) -> AtomicAst(a)
+  | OtherAst(asts) -> OtherAst(List.map ~f:f asts)
+  | AssignTast(t, g) -> AssignTast(t, f g)
+  | InitAst(asts) -> InitAst(List.map ~f:f asts)
+  | InitDeclAst(asts) -> InitDeclAst(List.map ~f:f asts)
+  | CastAst(asts) -> CastAst(List.map ~f:f asts)
+  | DeclIdList(asts) -> DeclIdList(List.map ~f:f asts)
+  | MallocTast(ast) -> MallocTast(f ast)
+  | AssignExprAst(a1, a2) -> AssignExprAst(f a1, f a2)
+  | AtomicNamedDecl(a1, a2, a3) -> AtomicNamedDecl(f a1, f a2, f a3)
+  | PointerDerefAst(ast) -> PointerDerefAst(f ast)
+  | PointerPostfixAst(a1, a2) -> PointerPostfixAst(f a1, f a2)
+  | PostfixAst(a1, a2) -> PostfixAst(f a1, f a2)
+  | OptAst(v, ast) -> OptAst(v, f ast)
+  | ArrayAst(a1) -> ArrayAst(f a1)
+  | PointerAst(a) -> PointerAst(f a)
+  | NAryExpr(a1, a2) ->  NAryExpr(f a1, f a2)
+  | NArySubExpr(a1, a2) ->  NArySubExpr(f a1, f a2)
+  | LoadAst(a) -> LoadAst(a)
+  | AtomicAst(a) -> AtomicAst(a)
 
 let rec transform_casts = function 
   | CastAst([_; ast]) -> ast
@@ -219,8 +219,13 @@ let rec ast_loads_stores = function
   | AssignTast(store, rest) -> store :: ast_loads_stores rest
   | other -> do_find_children ast_loads_stores other
 
-let ast_returns_pointer input_ast =
 
+let rec ast_decls = function 
+    | AtomicNamedDecl(_, LoadAst(id), _) -> [id]
+    | other -> do_find_children ast_decls other
+
+
+let ast_returns_pointer input_ast =
   let rec ast_has_decl_list = function
     | DeclIdList(_) -> [()]
     | other -> do_find_children ast_has_decl_list other
@@ -289,6 +294,9 @@ let node_subnodes_count (n: node) : int =
 
 let node_loads (n : node) : string list = 
   ast_finder n ast_loads unary_transformer
+
+let node_decls (n : node) : string list = 
+  ast_finder n ast_decls unary_transformer
 
 let node_assigns (n : node) : (string * string) list = 
   ast_finder n ast_assigns binary_transformer

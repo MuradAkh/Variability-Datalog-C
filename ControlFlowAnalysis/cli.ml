@@ -7,6 +7,7 @@ let get_analysis = match Sys.argv.(1) with
         | "POINTER" -> pointer_analysis_of_func
         | "INTABS" -> fun c -> store_loads_of_func c @ dominance c
         | "REDUCEABLE" -> fun c -> dominance c @ cycles c @ edges_of_func c
+        | "DEFUSE" -> fun c -> store_loads_of_func c
         | _ -> pointer_analysis_of_func
 
 let get_analysis_ast = match Sys.argv.(1) with

@@ -9,6 +9,7 @@ type datalog_fact =
     | PostDominator of {variability : varE option; doms: string; domed: string}
     | Store of {variability : varE option; variable: string; node : string}
     | Load of {variability : varE option; variable: string; node : string}
+    | VariableDeclaration of {variability : varE option; variable: string; node : string}
     | PointsTo of {variability : varE option; variable: string; heap : string}
     | Assign of {variability : varE option; tovar: string; fromvar : string}
     | Cycle of {variability : varE option; id : string}
@@ -27,6 +28,8 @@ let typed_to_generic = function
       GFact {name= "store"; variability=var; parametrs=[p1;p2]}
   | Load {variability=var; variable=p1; node=p2} -> 
       GFact {name= "load"; variability=var; parametrs=[p1;p2]}
+  | VariableDeclaration {variability=var; variable=p1; node=p2} -> 
+      GFact {name= "declare"; variability=var; parametrs=[p1;p2]}
   | PointsTo {variability=var; variable=p1; heap=p2} -> 
       GFact {name= "pointsTo"; variability=var; parametrs=[p1;p2]}
   | AssignedReturn {variability=var; variable=p1; heap=p2} -> 

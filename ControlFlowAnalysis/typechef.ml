@@ -51,11 +51,12 @@ let parseAst (exp: string) : c_ast =
         | AstLexer.SyntaxError msg ->
             ignore msg;
         (* (eprintf  "syntax error: %s on string: %s\n" msg exp); *)
+                    Caml.exit (-1) |> ignore;
             None
         | AstParser.Error ->
             (eprintf  "parser error on %s\n" exp);
             print_position lexbuf;
-            (* Caml.exit (-1) *)
+            Caml.exit (-1) |> ignore;
             None
     in
 
