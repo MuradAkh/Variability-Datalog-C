@@ -1,0 +1,14 @@
+.decl cycleNode(id: symbol, a:symbol, b:symbol )
+.decl dominator(b:symbol, a:symbol)
+.decl backedge(a:symbol, b:symbol)
+.decl edge(a:symbol, b:symbol)
+.decl cycle(id: symbol)
+.decl broken(id: symbol)
+
+
+
+// -- analysis --
+.output cycle
+.output broken
+backedge(a, b) :- edge(a,b), dominator(b, a).
+broken(id) :- cycleNode(id, a,b), backedge(a,b).

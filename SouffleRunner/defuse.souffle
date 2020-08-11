@@ -1,0 +1,25 @@
+.decl load( i : symbol, x : symbol )
+.decl store( w : symbol, x : symbol )
+.decl edge( a : symbol, b : symbol )
+
+store("r1","v1").
+load("r2","v1").
+load("r3","v2").
+store("w1","v1").
+store("w2","v2").
+store("w3","v2").
+
+edge("w1","o1").
+edge("o1","r1").
+edge("o1","r2").
+edge("r2","r3").
+edge("r3","w2").
+
+// -- analysis --
+.decl flow( a : symbol, b : symbol )
+flow(X,Y) :- edge(X,Y).
+flow(X,Z) :- flow(X,Y), flow(Y,Z).
+
+.decl defUse( w : symbol , r : symbol )
+.output defUse
+defUse(W,R) :- store(W,X), flow(W,R), load(R,X).

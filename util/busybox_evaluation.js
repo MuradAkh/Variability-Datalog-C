@@ -37,17 +37,26 @@ async function do_file(file, type){
     total_size += fileSizeInBytes
     
     await exec(`mkdir -p ./dump/souffle/`);
+    let outputInBytes = 0;
     switch(process.argv[2].toLowerCase()){
         case "pointer": 
             await exec(`mv ./pointsTo.csv ./dump/souffle/${file}_pointsto.out`);  
+            outputInBytes += fs.statSync(`./dump/souffle/${file}_pointsto.out`)["size"]
             break;
         case "reduceable":
             await exec(`mv ./broken.csv ./dump/souffle/${file}_broken.out`);  
-            await exec(`mv ./cycle.csv ./dump/souffle/${file}_cycle.out`);  
+            await exec(`mv ./cycle.csv ./dump/souffle/${file}_cycle.out`);            
+            outputInBytes += fs.statSync(`./dump/souffle/${file}_broken.out`)["size"]
+            outputInBytes += fs.statSync(`./dump/souffle/${file}_cycle.out`)["size"]
+            break;
+        case "defuse":
+            await exec(`mv ./defUse.csv ./dump/souffle/${file}_defuse.out`);  
+            outputInBytes += fs.statSync(`./dump/souffle/${file}_defuse.out`)["size"]
+            break;
     }
 
     // console.log(Math.round(t1 - t0), "ms", Math.round(u1 - u0), "ms", fileSizeInBytes, "bytes")
-    return [Math.round(t1 - t0), Math.round(u1 - u0), fileSizeInBytes]
+    return [Math.round(t1 - t0), Math.round(u1 - u0), fileSizeInBytes, outputInBytes]
     
 }
 
@@ -57,6 +66,7 @@ async function do_eval(){
     let time_extraction = []
     let time_solver = []
     let data_size = []
+    let output_size = []
 
     const files = fs.readFileSync('./util/busybox_files.txt', 'utf-8').split('\n');
     for (const file of files) {
@@ -70,20 +80,27 @@ async function do_eval(){
             time_extraction = time_extraction.concat([
             (log[1]),
             (log[2]),
-            ((Math.pow(2, log[1]) * (log[5] + log[8]) / 2))
+            ((Math.pow(2, log[1]) * (log[6] + log[10]) / 2))
             ].join(" "))
 
             time_solver = time_solver.concat([
             (log[1]),
             (log[3]),
-            ((Math.pow(2, log[1]) * (log[6] + log[9]) / 2))
+            ((Math.pow(2, log[1]) * (log[7] + log[11]) / 2))
             ].join(" "))
             
             data_size = data_size.concat([
             (log[1]),
             (log[4]),
-            ((Math.pow(2, log[1]) * (log[7] + log[10]) / 2))
+            ((Math.pow(2, log[1]) * (log[8] + log[12]) / 2))
             ].join(" "))
+
+            output_size = output_size.concat([
+            (log[1]),
+            (log[5]),
+            ((Math.pow(2, log[1]) * (log[9] + log[13]) / 2))
+            ].join(" "))
+
             
         }catch(err){
             // if(process.argv[4] === "csv"){
@@ -98,6 +115,7 @@ async function do_eval(){
         fs.writeFileSync("./data/extract-" + process.argv[2] + ".csv", time_extraction.join("\n"))
         fs.writeFileSync("./data/solve-" + process.argv[2]  + ".csv" , time_solver.join("\n"))
         fs.writeFileSync("./data/size-" + process.argv[2] + ".csv" , data_size.join("\n"))
+        fs.writeFileSync("./data/outputsize-" + process.argv[2] + ".csv" , output_size.join("\n"))
         
     }
 
