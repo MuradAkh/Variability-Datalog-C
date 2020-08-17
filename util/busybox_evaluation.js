@@ -6,7 +6,7 @@ const regExpCfg = /definedEx\(([^()]+)\)/g;
 const regExpAst = /def\(([^()]+)\)/g;
 let total_size = 0
 
-function products(file) {
+function features(file) {
     const all_vars = new Set()
 
     const regExp =  regExpCfg
@@ -71,7 +71,11 @@ async function do_eval(){
     const files = fs.readFileSync('./util/busybox_files.txt', 'utf-8').split('\n');
     for (const file of files) {
         try{
-            let log = [file, products(file)]
+            const num_features= features(file);
+            if(num_features === 0){
+                continue;
+            }
+            let log = [file, num_features]
             for (type of ["vars", "all_undefined", "all_defined"]){
                 log = log.concat(await do_file(file, type))
             }         
