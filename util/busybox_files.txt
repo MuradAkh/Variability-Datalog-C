@@ -1,7 +1,6 @@
 applets_applets.cfg
 archival_ar.cfg
 archival_bbunzip.cfg
-archival_bzip2.cfg
 archival_cpio.cfg
 archival_dpkg.cfg
 archival_dpkg_deb.cfg
@@ -138,7 +137,6 @@ e2fsprogs_e2fs_lib.cfg
 e2fsprogs_fsck.cfg
 e2fsprogs_lsattr.cfg
 e2fsprogs_tune2fs.cfg
-editors_awk.cfg
 editors_cmp.cfg
 editors_ed.cfg
 editors_patch.cfg

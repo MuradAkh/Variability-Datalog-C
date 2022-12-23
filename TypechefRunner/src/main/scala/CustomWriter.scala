@@ -30,6 +30,7 @@
 
 
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.parser.c.PrettyPrinter
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
 import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.parser.c.FunctionDef
@@ -94,17 +95,18 @@ class CustomWriter(fwriter: Writer) extends IOUtilities with CFGWriter {
   }
 
   private def printLine(ast: AST): String ={
+    // esc(PrettyPrinter.print(ast))
     esc(ast.toString)
   }
 
 
 
   def writeEdge(source: AST, target: AST, fexpr: FeatureExpr) {
-    fwriter.write("E;" + System.identityHashCode(source) + ";" + System.identityHashCode(target) + ";" + fexpr.toTextExpr + "\n")
+    fwriter.write("E;" + System.identityHashCode(source).toString().substring(0,4)+ ";" + System.identityHashCode(target).toString().substring(0,4) + ";" + fexpr.toTextExpr + "\n")
   }
 
   def writeNode(o: AST, fexpr: FeatureExpr, containerName: String) {
-    fwriter.write("N;" + System.identityHashCode(o) + ";" + asText(o, containerName) + ";" + fexpr.toTextExpr + "\n")
+    fwriter.write("N;" + System.identityHashCode(o).toString().substring(0,4) + ";" + asText(o, containerName) + ";" + fexpr.toTextExpr + "\n")
   }
 
   def writeFooter() {

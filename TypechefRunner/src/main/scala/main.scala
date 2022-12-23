@@ -3,7 +3,7 @@
 import java.io.{File, FileWriter}
 
 import de.fosd.typechef.Frontend
-import de.fosd.typechef.crewrite.{CInterAnalysisFrontend, ComposedWriter}
+import de.fosd.typechef.crewrite.{CInterAnalysisFrontend, ComposedWriter, CFGWriter, CFGCSVWriter}
 import de.fosd.typechef.options.FrontendOptions
 import de.fosd.typechef.parser.c.{CASTEnv, TranslationUnit}
 
@@ -48,6 +48,7 @@ object main {
 //    val s2 = cf.getAllSucc(preds.head._1, CASTEnv.createASTEnv(ast))
 //    val s3 = cf.getAllSucc(s2.head._1, CASTEnv.createASTEnv(ast))
 
+    // val cw = new CFGCSVWriter(new FileWriter(new File("../_temp/output.cfg")))
     val cw = new CustomWriter(new FileWriter(new File("../_temp/output.cfg")))
     cf.writeCFG("hello", new ComposedWriter(List(cw)))
   }

@@ -1,8 +1,14 @@
 #include <stdlib.h>
 
-int *xp(){
+void *ap();
+void *azp;
+
+void ***xp(){
+
     char *x = malloc(sizeof(char));
+      #if !defined LINUX 
     return NULL;
+    #endif
 }
 
 int main(int argc, char *argv[]) {
@@ -10,7 +16,7 @@ int main(int argc, char *argv[]) {
   char *a = (char*) malloc(sizeof(char));
   char *b = (char*) malloc(32);
   char *c;
-  xp();
+  int i = xp();
   c = (char*) malloc(32);
   return 0;
 }

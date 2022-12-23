@@ -51,11 +51,20 @@ DeclarationStatement(
         List(Opt(
             True,
             InitDeclaratorI(
-                AtomicNamedDeclarator(List(Opt(True,Pointer(List()))),Id(z),List()),
+                AtomicNamedDeclarator(
+                    List(Opt(True,Pointer(List()))),Id(z),List()),
                 List(),
                 Some(Initializer(None,Id(y))))))
     )
 )
+
+DeclarationStatement(Declaration(List(Opt(True,CharSpecifier())),List(Opt(True,InitDeclaratorI(
+    AtomicNamedDeclarator(
+        List(Opt(True,Pointer(List()))),
+        Id(c),
+        List()
+    ),
+    List(),None)))))
 
 
 ExprStatement(
@@ -124,7 +133,7 @@ TranslationUnit(
                                 Opt(True,Pointer(List()))
                             ),
                             Id(hello),
-                            List(Opt(True,DeclIdentifierList(List())))
+                            List(Opt(True,AtomicNamedDeclarator(List())))
                         ),
                         List(),
                         None)
